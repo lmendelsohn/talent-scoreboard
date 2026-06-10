@@ -105,24 +105,38 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .ph::before{display:none!important}
 
 /* SCOREBOARD */
-.metric-row{margin-bottom:18px}
-.metric-row-label{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(0,30,98,.05);border-left:3px solid var(--navy);border-radius:0 4px 4px 0;color:var(--navy);margin-bottom:8px;display:inline-flex;align-items:center;gap:8px}
-.metric-row-label .owner-pip{font-weight:400;opacity:.6;font-size:8px;letter-spacing:0;text-transform:none}
-.cards-row{display:flex;flex-wrap:wrap;gap:8px}
-.score-card{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:13px 13px 10px;width:195px;flex-shrink:0}
-.sc-city{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
-.sc-value{font-size:24px;font-weight:700;line-height:1;letter-spacing:-1px;margin-bottom:3px}
-.sc-goal{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)}
-.sc-delta{font-family:'DM Mono',monospace;font-size:9px;margin-top:1px}
 .du{color:var(--g-green)}.dd{color:var(--g-red)}.df{color:var(--muted)}
 .v-green{color:var(--g-green)}.v-yellow{color:var(--g-yellow)}.v-red{color:var(--g-red)}.v-muted{color:var(--muted2)}
 .sc-pip{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;flex-shrink:0;vertical-align:middle}
 .pip-g{background:#1a7a4a}.pip-y{background:#d4900a}.pip-r{background:var(--red)}.pip-x{background:var(--muted2)}
-.chart-wrap{height:36px;position:relative;margin-top:6px}
-.chart-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
-.chart-legend{display:flex;gap:8px;margin-top:3px}
-.cl-item{display:flex;align-items:center;gap:3px;font-family:'DM Mono',monospace;font-size:8px;color:var(--muted)}
-.cl-sw{width:10px;height:2px;border-radius:1px}
+.group-card{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:18px 20px 14px;margin-bottom:14px}
+.group-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.group-title{font-size:13px;font-weight:700;color:var(--navy)}
+.group-owner{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:2px 8px;background:var(--surface2);border-radius:3px}
+.group-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.gs-tile{background:var(--surface2);border-radius:6px;padding:8px 12px;min-width:80px}
+.gs-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:.5px}
+.gs-val{font-size:20px;font-weight:700;line-height:1;letter-spacing:-.5px}
+.gs-sub{font-family:'DM Mono',monospace;font-size:9px;margin-top:2px}
+.group-chart-wrap{position:relative;height:120px;margin-bottom:10px}
+.group-chart-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
+.group-legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.gl-item{display:flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);cursor:pointer;padding:2px 6px;border-radius:3px;user-select:none;transition:opacity .15s;border:1px solid transparent}
+.gl-item:hover{background:var(--surface2)}
+.gl-item.faded{opacity:.3}
+.gl-swatch{width:16px;height:3px;border-radius:1px;flex-shrink:0}
+.gl-sep{width:1px;height:10px;background:var(--border);margin:0 2px}
+.stat-card{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.stat-card-left{flex:1;min-width:140px}
+.stat-card-title{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.stat-card-owner{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)}
+.stat-card-vals{display:flex;gap:10px;flex-wrap:wrap}
+.stat-mini{background:var(--surface2);border-radius:6px;padding:7px 12px;text-align:center}
+.stat-mini-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:2px}
+.stat-mini-val{font-size:18px;font-weight:700;line-height:1}
+.stat-mini-sub{font-family:'DM Mono',monospace;font-size:9px;margin-top:2px}
+.stat-chart-wrap{position:relative;height:56px;width:160px;flex-shrink:0}
+.stat-chart-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
 
 /* HOW TO USE */
 .howto-hero{background:var(--navy);border-radius:10px;padding:22px 26px;margin-bottom:22px;color:#fff}
@@ -237,7 +251,7 @@ hr.div{border:none;border-top:1px solid var(--border2);margin:22px 0}
       <h3>Data entry happens in Google Sheets</h3>
       <p>Open the shared Sheet, go to the <b>1 | 26-27 Data</b> tab, find your rows, and enter this week's values in the current week's column.<br>Come back here and click <b>Sync from Sheet</b> in the nav bar to refresh the dashboard.</p>
     </div>
-    <a href="https://docs.google.com/spreadsheets/d/1nZoYx3C1K-TFrIrtMH63dHfAweIZW0yswezrJ1gey7E/edit" target="_blank" class="open-sheet-btn">Open Google Sheet →</a>
+    <a href="https://docs.google.com/spreadsheets/d/1pks8_nmt8jSutjt4_YM3yJPkruBLVbW_Kg8wyY5suJ4/edit" target="_blank" class="open-sheet-btn">Open Google Sheet →</a>
   </div>
 
   <div class="slabel">Who enters what</div>
@@ -256,7 +270,7 @@ hr.div{border:none;border-top:1px solid var(--border2);margin:22px 0}
   <div class="sync-status">
     <div class="sync-dot" id="sync-dot"></div>
     <div class="sync-msg" id="sync-msg">Not yet synced — click "Sync from Sheet" to load live data.</div>
-    <a href="https://docs.google.com/spreadsheets/d/1nZoYx3C1K-TFrIrtMH63dHfAweIZW0yswezrJ1gey7E/edit" target="_blank" class="sync-sheet-link">Open Sheet ↗</a>
+    <a href="https://docs.google.com/spreadsheets/d/1pks8_nmt8jSutjt4_YM3yJPkruBLVbW_Kg8wyY5suJ4/edit" target="_blank" class="sync-sheet-link">Open Sheet ↗</a>
   </div>
 
   <div class="gen-bar">
@@ -293,21 +307,22 @@ hr.div{border:none;border-top:1px solid var(--border2);margin:22px 0}
   <div class="slabel">Scoreboard — 26–27 Season to Date</div>
   <div id="scoreboard-rows"></div>
 
-  <p class="footnote">Navy line = 26–27 · Orange line = 25–26 · Dashed green = goal · Data synced from Google Sheets</p>
+  <p class="footnote">Navy = 26–27 · Orange = 25–26 · Grey = 24–25 · Dashed green = goal · Data synced from Google Sheets</p>
 </div>
 
 <script>
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
-const SHEET_ID = '1IoRdvTCr-HVMCnl71n2edNXwfyr3c9trnwlvblb4img';
+const SHEET_ID = '1pks8_nmt8jSutjt4_YM3yJPkruBLVbW_Kg8wyY5suJ4';
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit`;
 // Public CSV export URLs per sheet tab (gid)
 // Tab "1 | 26-27 Data" = gid 0 (first sheet after conversion)
 // We'll try to fetch via the public CSV export
 const CSV_URLS = {
-  data2627: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`,
-  data2526: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1`,
-  goals:    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=2`,
-  archive:  `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=3`,
+  data2627: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=227019366`,
+  data2526: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=146276175`,
+  data2425: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=77979022`,
+  goals:    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=29831378`,
+  archive:  `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1760766744`,
 };
 
 // ─── OWNERS ───────────────────────────────────────────────────────────────────
@@ -512,6 +527,7 @@ function buildMetricsFromDefaults() {
         group: g.group, owner: g.owner,
         cy: Array(N).fill(null),
         ly: Array(N).fill(null),
+        ly2: Array(N).fill(null),
       };
     });
   });
@@ -535,6 +551,13 @@ function parseCSV(text) {
   return rows;
 }
 
+function setSyncStatus(state, msg) {
+  const dot = document.getElementById('sync-dot');
+  const msgEl = document.getElementById('sync-msg');
+  dot.className = 'sync-dot ' + (state === 'ok' ? 'ok' : state === 'err' ? 'err' : 'loading');
+  msgEl.textContent = msg;
+}
+
 // ─── SYNC FROM SHEET ─────────────────────────────────────────────────────────
 async function syncFromSheet() {
   const btn = document.getElementById('sync-btn');
@@ -543,30 +566,39 @@ async function syncFromSheet() {
   setSyncStatus('loading', 'Syncing from Google Sheet…');
 
   try {
-    // Fetch 26-27 data tab
-    const resp = await fetch(CSV_URLS.data2627);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const text = await resp.text();
-    const rows = parseCSV(text);
+    // Fetch all data tabs in parallel
+    const [resp2627, resp2526, resp2425] = await Promise.all([
+      fetch(CSV_URLS.data2627),
+      fetch(CSV_URLS.data2526),
+      fetch(CSV_URLS.data2425),
+    ]);
 
-    // Parse: header row has Tab,Owner,Metric,City,Unit,Goal,Frequency,Notes
-    // Data rows start at index 1
-    buildMetricsFromDefaults(); // reset
+    if (!resp2627.ok) throw new Error(`HTTP ${resp2627.status} — make sure the Sheet is set to "Anyone with the link can view"`);
 
-    const dataRows = rows.slice(1).filter(r => r[0] && r[0].includes('26-27') && r[1] && r[2]);
-    // For now we just confirm the Sheet is readable and counts rows
-    // Real weekly data columns would need the full xlsx structure
-    // with dated columns — the CSV export of this simplified sheet
-    // gives us the metric list but not weekly time-series data yet
+    const [text2627, text2526, text2425] = await Promise.all([
+      resp2627.text(),
+      resp2526.ok ? resp2526.text() : '',
+      resp2425.ok ? resp2425.text() : '',
+    ]);
 
-    setSyncStatus('ok', `Synced ${dataRows.length} metrics from Sheet. ${new Date().toLocaleTimeString()}`);
+    buildMetricsFromDefaults();
+
+    // 26-27 = current year (cy), 25-26 = last year (ly), 24-25 = prior year (ly2)
+    parseDataTab(text2627, 'cy');
+    parseDataTab(text2526, 'ly');
+    parseDataTab(text2425, 'ly2');
+
+    // Add ly2 field to all metrics
+    Object.values(METRICS).forEach(m => { if (!m.ly2) m.ly2 = Array(40).fill(null); });
+
+    const populated = Object.values(METRICS).filter(m => lastVal(m.cy) != null).length;
+    setSyncStatus('ok', `Synced ${populated} metrics with data · ${new Date().toLocaleTimeString()}`);
     renderAll();
-    updateEntryPreview(dataRows);
+    updateEntryPreview();
 
   } catch(e) {
-    // Sheet may require auth — fall back to demo data
     buildMetricsFromDefaults();
-    setSyncStatus('err', `Sheet not publicly accessible yet. Using local demo data. (${e.message})`);
+    setSyncStatus('err', `Could not reach Sheet — using seeded data. Make sure the Sheet is set to "Anyone with the link can view". (${e.message})`);
     renderAll();
   }
 
@@ -574,28 +606,106 @@ async function syncFromSheet() {
   btn.textContent = '↻ Sync from Sheet';
 }
 
-function setSyncStatus(state, msg) {
-  const dot = document.getElementById('sync-dot');
-  const msgEl = document.getElementById('sync-msg');
-  dot.className = 'sync-dot ' + (state === 'ok' ? 'ok' : state === 'err' ? 'err' : 'loading');
-  msgEl.textContent = msg;
+// Parse a data tab CSV and populate METRICS[key].cy or .ly
+// Tab structure: row 1 = title, row 2 = column headers (Owner,Group,Metric,City,Unit,Goal,Freq,Low?,Notes,date1,date2,...)
+// Data rows: col 0=Owner(may be blank), col 1=Group(may be blank), col 2=Metric, col 3=City, cols 9+=weekly values
+function parseDataTab(text, field) {
+  if (!text || text.length < 10) return;
+  const rows = parseCSV(text);
+  if (rows.length < 3) return;
+
+  // Find header row — the one that has "Metric" or "Owner" in col 0 or 2
+  let headerIdx = -1;
+  for (let i = 0; i < Math.min(5, rows.length); i++) {
+    if (rows[i][2] && rows[i][2].toLowerCase().includes('metric')) { headerIdx = i; break; }
+    if (rows[i][0] && rows[i][0].toLowerCase().includes('owner')) { headerIdx = i; break; }
+  }
+  if (headerIdx < 0) headerIdx = 1; // fallback: row 2
+
+  const header = rows[headerIdx];
+  // Find where data columns start — look for first date-like header after col 8
+  let dataStart = 9;
+  for (let c = 6; c < header.length; c++) {
+    if (header[c] && /\d{1,2}\/\d{1,2}/.test(header[c])) { dataStart = c; break; }
+  }
+
+  const numWeeks = header.length - dataStart;
+  if (numWeeks <= 0) return;
+
+  // Walk data rows
+  let lastOwner = '', lastGroup = '';
+  for (let r = headerIdx + 1; r < rows.length; r++) {
+    const row = rows[r];
+    if (!row || row.length < 4) continue;
+
+    const owner = row[0] || lastOwner;
+    const group = row[1] || lastGroup;
+    const metric = row[2];
+    const city = row[3];
+
+    if (!metric || metric.startsWith('⚠') || metric === 'Metric') continue;
+    if (owner) lastOwner = owner;
+    if (group) lastGroup = group;
+
+    const key = `${metric}|${city}`;
+    if (!METRICS[key]) continue; // skip rows we don't track
+
+    // Parse weekly values
+    const arr = Array(40).fill(null);
+    for (let c = 0; c < numWeeks && c < 40; c++) {
+      const raw = row[dataStart + c];
+      if (!raw || raw === '' || raw === '—' || raw.toLowerCase().includes('no data')
+          || raw.toLowerCase().includes('break') || raw.toLowerCase().includes('can\'t')) continue;
+      // Strip % sign and convert
+      const cleaned = raw.replace(/[%,\s]/g, '');
+      const num = parseFloat(cleaned);
+      if (!isNaN(num)) {
+        // If value looks like a decimal already (0.xx) and unit is %, multiply up
+        arr[c] = (num > 0 && num <= 1 && METRICS[key].unit === '%') ? num * 100 : num;
+      }
+    }
+    METRICS[key][field] = arr;
+  }
 }
 
-function updateEntryPreview(rows) {
+// Parse goals tab and update TOPLINE_GOALS statuses
+// Structure: row 1=title, row 2=headers (Goal, Owner, Status, Notes), row 3+=data
+function parseGoalsTab(text) {
+  if (!text) return;
+  const rows = parseCSV(text);
+  let dataStart = 2;
+  for (let i = 0; i < Math.min(4, rows.length); i++) {
+    if (rows[i][0] && rows[i][0].toLowerCase().includes('goal')) { dataStart = i + 1; break; }
+  }
+  for (let r = dataStart; r < rows.length; r++) {
+    const row = rows[r];
+    if (!row || !row[0]) continue;
+    const goalText = row[0].trim();
+    const status = row[2] ? row[2].trim() : '';
+    const notes = row[3] ? row[3].trim() : '';
+    if (!status) continue;
+    // Match by goal text (partial ok)
+    const match = TOPLINE_GOALS.find(g => g.goal.toLowerCase() === goalText.toLowerCase()
+      || goalText.toLowerCase().includes(g.goal.toLowerCase().slice(0, 20)));
+    if (match && S_OPTS.includes(status)) {
+      match.status = status;
+      if (notes) match.notes = notes;
+    }
+  }
+}
+
+function updateEntryPreview() {
   const el = document.getElementById('entry-preview');
-  if (!rows || rows.length === 0) {
-    el.innerHTML = '<span style="color:var(--muted)">No data rows found in sheet.</span>';
+  const populated = Object.values(METRICS).filter(m => lastVal(m.cy) != null);
+  if (populated.length === 0) {
+    el.innerHTML = '<span style="color:var(--muted)">No data values found in 26-27 tab yet — enter numbers in the Sheet and sync again.</span>';
     return;
   }
   const byOwner = {};
-  rows.forEach(r => {
-    const owner = r[1] || 'Unknown';
-    if (!byOwner[owner]) byOwner[owner] = 0;
-    byOwner[owner]++;
-  });
+  populated.forEach(m => { byOwner[m.owner] = (byOwner[m.owner]||0) + 1; });
   el.innerHTML = Object.entries(byOwner).map(([o,n]) =>
-    `<span style="margin-right:16px"><b style="color:var(--text)">${o}</b>: ${n} metrics</span>`
-  ).join('') + `<br><span style="color:var(--muted2)">Synced at ${new Date().toLocaleTimeString()}</span>`;
+    `<span style="margin-right:16px"><b style="color:var(--text)">${o}</b>: ${n} metrics with data</span>`
+  ).join('') + `<br><span style="color:var(--muted2)">Last synced ${new Date().toLocaleTimeString()}</span>`;
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -616,78 +726,336 @@ function pip(m) {
 }
 function vc(m) { const p=pip(m); return p==='pip-g'?'v-green':p==='pip-y'?'v-yellow':p==='pip-r'?'v-red':'v-muted'; }
 
-// ─── CHART ────────────────────────────────────────────────────────────────────
-function drawChart(canvas, m) {
-  const cy=m.cy, ly=m.ly, goal=m.goal;
-  const dpr=window.devicePixelRatio||1;
-  const W=canvas.offsetWidth||195, H=canvas.offsetHeight||36;
-  canvas.width=W*dpr; canvas.height=H*dpr;
-  const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
-  const all=[...cy,...ly].filter(v=>v!=null);
-  if(goal!=null) all.push(goal);
-  if(!all.length) return;
-  const n=cy.length, pd={t:3,b:3,l:2,r:2};
-  const mn=Math.min(...all)-.5, mx=Math.max(...all)+.5, rng=mx-mn||1;
-  const xp=i=>pd.l+i*(W-pd.l-pd.r)/(n-1);
-  const yp=v=>H-pd.b-(v-mn)/rng*(H-pd.t-pd.b);
-  function line(d,c,w,dash=[]) {
-    ctx.beginPath();ctx.strokeStyle=c;ctx.lineWidth=w;ctx.setLineDash(dash);
-    let s=false;d.forEach((v,i)=>{if(v==null){s=false;return;}if(!s){ctx.moveTo(xp(i),yp(v));s=true;}else ctx.lineTo(xp(i),yp(v));});
-    ctx.stroke();ctx.setLineDash([]);
+// ─── ENTITY COLOR MAP ───────────────────────────────────────────────────────
+const ENTITY_COLORS = {
+  'Overall':  '#001E62',
+  'Newark':   '#57C0E9',
+  'Camden':   '#F9A21A',
+  'Miami':    '#EE3C37',
+  'Paterson': '#C3D52E',
+  'KTAF':     '#7B5EA7',
+  'YTD':      '#001E62',
+  '[text]':   '#001E62',
+};
+// Line styles per year: cy=solid, ly=dashed, ly2=dotted
+const YEAR_DASH = { cy: [], ly: [6,3], ly2: [2,3] };
+const YEAR_LABEL = { cy: '26–27', ly: '25–26', ly2: '24–25' };
+
+function entityColor(city) { return ENTITY_COLORS[city] || '#8492B4'; }
+
+// ─── GROUP CHART DRAWING ─────────────────────────────────────────────────────
+// hiddenSeries: Set of strings like "Overall|cy", "Newark|ly" etc.
+function drawGroupChart(canvas, metrics, hiddenSeries) {
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth || 600, H = canvas.offsetHeight || 120;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr); ctx.clearRect(0, 0, W, H);
+
+  // Collect all values for scale
+  const allVals = [];
+  const nWeeks = metrics[0]?.cy?.length || 40;
+  const pd = { t: 8, b: 20, l: 36, r: 8 };
+
+  metrics.forEach(m => {
+    ['cy','ly','ly2'].forEach(yr => {
+      const key = `${m.city}|${yr}`;
+      if (hiddenSeries && hiddenSeries.has(key)) return;
+      (m[yr]||[]).forEach(v => { if (v != null) allVals.push(v); });
+    });
+    if (m.goal != null) allVals.push(m.goal);
+  });
+
+  if (!allVals.length) {
+    ctx.fillStyle = '#b0b8cc';
+    ctx.font = '11px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('No data — sync from Sheet', W/2, H/2);
+    return;
   }
-  if(goal!=null){ctx.beginPath();ctx.strokeStyle='#C3D52E';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);ctx.moveTo(pd.l,yp(goal));ctx.lineTo(W-pd.r,yp(goal));ctx.stroke();ctx.setLineDash([]);}
-  line(ly,'#F9A21A',1.5);
-  line(cy,'#001E62',2.5);
-  let li=-1; cy.forEach((v,i)=>{if(v!=null)li=i;});
-  if(li>=0){ctx.beginPath();ctx.arc(xp(li),yp(cy[li]),3,0,Math.PI*2);ctx.fillStyle='#001E62';ctx.fill();}
-}
-function redrawAll() {
-  Object.values(METRICS).forEach(m => {
-    const c = document.getElementById('chart-' + encodeKey(m.label,m.city));
-    if(c) drawChart(c,m);
+
+  const mn = Math.min(...allVals), mx = Math.max(...allVals);
+  const pad = (mx - mn) * 0.08 || 1;
+  const yMin = mn - pad, yMax = mx + pad, yRange = yMax - yMin;
+
+  const xp = i => pd.l + i * (W - pd.l - pd.r) / (nWeeks - 1);
+  const yp = v => pd.t + (1 - (v - yMin) / yRange) * (H - pd.t - pd.b);
+
+  // Y axis labels
+  ctx.fillStyle = '#8492B4';
+  ctx.font = `${9 * dpr / dpr}px DM Mono, monospace`;
+  ctx.textAlign = 'right';
+  const unit = metrics[0]?.unit || '';
+  const fmt = v => unit === '%' ? Math.round(v) + '%' : (Number.isInteger(v) ? v : v.toFixed(1));
+  [yMin + yRange*0, yMin + yRange*.5, yMin + yRange*1].forEach(v => {
+    ctx.fillText(fmt(v), pd.l - 4, yp(v) + 3);
+  });
+
+  // X axis tick marks
+  ctx.strokeStyle = '#e8eaf2';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i < nWeeks; i += 4) {
+    ctx.beginPath(); ctx.moveTo(xp(i), pd.t); ctx.lineTo(xp(i), H - pd.b); ctx.stroke();
+  }
+
+  // Goal line
+  const firstGoal = metrics.find(m => m.goal != null)?.goal;
+  if (firstGoal != null) {
+    ctx.beginPath(); ctx.strokeStyle = '#C3D52E'; ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 3]);
+    ctx.moveTo(pd.l, yp(firstGoal)); ctx.lineTo(W - pd.r, yp(firstGoal));
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // Draw series lines
+  metrics.forEach(m => {
+    const col = entityColor(m.city);
+    ['ly2','ly','cy'].forEach(yr => {
+      const key = `${m.city}|${yr}`;
+      if (hiddenSeries && hiddenSeries.has(key)) return;
+      const data = m[yr] || [];
+      if (!data.some(v => v != null)) return;
+      const lw = yr === 'cy' ? 2 : 1.5;
+      const alpha = yr === 'cy' ? 1 : yr === 'ly' ? 0.7 : 0.4;
+      ctx.beginPath();
+      ctx.strokeStyle = col;
+      ctx.globalAlpha = alpha;
+      ctx.lineWidth = lw;
+      ctx.setLineDash(YEAR_DASH[yr]);
+      let started = false;
+      data.forEach((v, i) => {
+        if (v == null) { started = false; return; }
+        if (!started) { ctx.moveTo(xp(i), yp(v)); started = true; }
+        else ctx.lineTo(xp(i), yp(v));
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+
+      // Dot at last value for cy
+      if (yr === 'cy') {
+        let li = -1; data.forEach((v,i) => { if (v != null) li = i; });
+        if (li >= 0) {
+          ctx.beginPath(); ctx.arc(xp(li), yp(data[li]), 3.5, 0, Math.PI*2);
+          ctx.fillStyle = col; ctx.fill();
+        }
+      }
+    });
   });
 }
+
+function redrawAll() {
+  document.querySelectorAll('[data-group-chart]').forEach(canvas => {
+    const groupId = canvas.dataset.groupChart;
+    const state = CHART_STATES[groupId];
+    if (state) drawGroupChart(canvas, state.metrics, state.hidden);
+  });
+  document.querySelectorAll('[data-stat-chart]').forEach(canvas => {
+    const key = canvas.dataset.statChart;
+    const m = METRICS[key];
+    if (m) drawStatChart(canvas, m);
+  });
+}
+
+function drawStatChart(canvas, m) {
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth || 160, H = canvas.offsetHeight || 56;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr,dpr); ctx.clearRect(0,0,W,H);
+  const allVals = [...(m.cy||[]),...(m.ly||[]),...(m.ly2||[])].filter(v=>v!=null);
+  if (m.goal != null) allVals.push(m.goal);
+  if (!allVals.length) return;
+  const mn = Math.min(...allVals), mx = Math.max(...allVals);
+  const pad = (mx-mn)*0.1||0.5;
+  const yMin=mn-pad, yMax=mx+pad, yRange=yMax-yMin;
+  const n = (m.cy||[]).length || 40;
+  const pd = {t:3,b:3,l:2,r:2};
+  const xp = i => pd.l + i*(W-pd.l-pd.r)/(n-1);
+  const yp = v => pd.t + (1-(v-yMin)/yRange)*(H-pd.t-pd.b);
+  function line(data, color, lw, dash=[]) {
+    if (!data.some(v=>v!=null)) return;
+    ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=lw; ctx.setLineDash(dash);
+    let s=false; data.forEach((v,i)=>{if(v==null){s=false;return;}if(!s){ctx.moveTo(xp(i),yp(v));s=true;}else ctx.lineTo(xp(i),yp(v));});
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  if (m.goal!=null) { ctx.beginPath();ctx.strokeStyle='#C3D52E';ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.moveTo(pd.l,yp(m.goal));ctx.lineTo(W-pd.r,yp(m.goal));ctx.stroke();ctx.setLineDash([]); }
+  line(m.ly2||[],'#b0b8cc',1,[2,2]);
+  line(m.ly||[],'#F9A21A',1.5,[5,3]);
+  line(m.cy||[],'#001E62',2);
+  let li=-1; (m.cy||[]).forEach((v,i)=>{if(v!=null)li=i;});
+  if(li>=0){ctx.beginPath();ctx.arc(xp(li),yp(m.cy[li]),3,0,Math.PI*2);ctx.fillStyle='#001E62';ctx.fill();}
+}
+
+// Track hidden series per chart group
+const CHART_STATES = {};
+
 function encodeKey(label, city) { return (label+'|'+city).replace(/[^a-zA-Z0-9]/g,'_'); }
+
+function pip(m) {
+  const v = lastVal(m.cy);
+  if (v == null) return 'pip-x';
+  if (m.low) {
+    const prev = (m.cy||[]).slice(0,-1).reverse().find(x=>x!=null);
+    if (prev != null) return v < prev ? 'pip-g' : v === prev ? 'pip-x' : 'pip-y';
+    return 'pip-x';
+  }
+  if (m.goal != null) { const d = v - m.goal; return d >= 0 ? 'pip-g' : d >= -3 ? 'pip-y' : 'pip-r'; }
+  const ly = lastVal(m.ly);
+  if (ly != null) { const d = v - ly; return d >= 0 ? 'pip-g' : d >= -1 ? 'pip-y' : 'pip-r'; }
+  return 'pip-x';
+}
+function vc(m) { const p=pip(m); return p==='pip-g'?'v-green':p==='pip-y'?'v-yellow':p==='pip-r'?'v-red':'v-muted'; }
 
 // ─── SCOREBOARD ───────────────────────────────────────────────────────────────
 function renderScoreboard() {
   const el = document.getElementById('scoreboard-rows');
   el.innerHTML = '';
+
+  // Decide stat-only vs chart groups
+  // Stat-only: group has only 1 entity (no city breakdown) AND window/sparse frequency
+  // These are: HR Survey, LD Survey, Teacher ITR, NSO Clearance sub-metrics, KB4 (window only)
+  const STAT_ONLY_GROUPS = new Set(['Support Surveys','Teacher ITR','NSO Clearance']);
+  function isStatOnly(g, metrics) {
+    if (STAT_ONLY_GROUPS.has(g.group)) return true;
+    // Also stat-only if all metrics are the same label (single metric, multiple cities treated as stat row)
+    const uniqueLabels = new Set(metrics.map(m => m.label));
+    if (uniqueLabels.size === 1 && metrics.length === 1) return true;
+    return false;
+  }
+
   DEFAULT_METRIC_GROUPS.forEach(g => {
-    const div = document.createElement('div');
-    div.className = 'metric-row';
-    const cards = g.metrics.map(md => {
-      const key = `${md.label}|${md.city}`;
-      const m = METRICS[key] || {...md, cy:Array(40).fill(null), ly:Array(40).fill(null), group:g.group, owner:g.owner};
-      const v = lastVal(m.cy), ly = lastVal(m.ly);
-      const disp = v != null ? (v + (m.unit||'')) : '—';
-      const p = pip(m), c = vc(m);
-      let delta = '';
-      if(v!=null && ly!=null) {
-        const d=(v-ly).toFixed(1);
-        const f=m.low?-1:1;
-        const cls=f*d>0?'du':f*d<0?'dd':'df';
-        const sym=d>0?'▲':d<0?'▼':'—';
-        delta=`<div class="sc-delta ${cls}">${sym}${Math.abs(d)}${m.unit||''} vs LY</div>`;
-      }
-      const ck = encodeKey(m.label,m.city);
-      return `<div class="score-card">
-        <div class="sc-city"><span class="sc-pip ${p}"></span>${m.city}</div>
-        <div class="sc-value ${c}">${disp}</div>
-        <div class="sc-goal">${m.goal!=null?'Goal: '+m.goal+(m.unit||''):(m.low?'Lower is better':'Tracking')}</div>
-        ${delta}
-        <div class="chart-wrap"><canvas id="chart-${ck}"></canvas></div>
-        <div class="chart-legend">
-          <div class="cl-item"><div class="cl-sw" style="background:#001E62"></div>26–27</div>
-          <div class="cl-item"><div class="cl-sw" style="background:#F9A21A"></div>25–26</div>
-          ${m.goal!=null?'<div class="cl-item"><div class="cl-sw" style="border-top:1.5px dashed #C3D52E;background:none"></div>Goal</div>':''}
+    const realMetrics = g.metrics
+      .filter(md => md.city !== '[text]' && md.unit !== 'text')
+      .map(md => {
+        const key = `${md.label}|${md.city}`;
+        return METRICS[key] || { ...md, cy: Array(40).fill(null), ly: Array(40).fill(null), ly2: Array(40).fill(null), group: g.group, owner: g.owner };
+      });
+
+    if (realMetrics.length === 0) return;
+
+    // Stat-only card for sparse single-value metrics
+    if (isStatOnly(g, realMetrics)) {
+      const div = document.createElement('div');
+      div.className = 'stat-card';
+      const vals = realMetrics.map(m => {
+        const v = lastVal(m.cy), ly = lastVal(m.ly);
+        const ckr = encodeKey(m.label, m.city);
+        const p = pip(m);
+        const fmt = val => val != null ? (m.unit === '%' ? val.toFixed(1) + '%' : m.unit === 'score' ? val.toFixed(2) : val) : '—';
+        let sub = '';
+        if (v != null && ly != null) {
+          const d = (v - ly); const f = m.low ? -1 : 1;
+          const cls = f*d > 0 ? 'du' : f*d < 0 ? 'dd' : 'df';
+          sub = `<div class="stat-mini-sub ${cls}">${d > 0 ? '▲' : d < 0 ? '▼' : '—'}${Math.abs(d).toFixed(1)} vs LY</div>`;
+        } else if (m.goal != null && v != null) {
+          sub = `<div class="stat-mini-sub" style="color:var(--muted)">Goal: ${m.goal}${m.unit||''}</div>`;
+        }
+        const label = realMetrics.length > 1 ? (m.city !== 'Overall' ? m.city : m.label) : m.label;
+        return `<div class="stat-mini">
+          <div class="stat-mini-label">${label}</div>
+          <div class="stat-mini-val ${vc(m)}">${fmt(v)}</div>
+          ${sub}
+        </div>`;
+      }).join('');
+
+      // Mini sparkline for stat-only
+      const firstM = realMetrics[0];
+      const ckr = encodeKey(firstM.label, firstM.city);
+      div.innerHTML = `
+        <div class="stat-card-left">
+          <div class="stat-card-title">${g.group}</div>
+          <div class="stat-card-owner">${g.owner}</div>
         </div>
+        <div class="stat-card-vals">${vals}</div>
+        <div class="stat-chart-wrap"><canvas data-stat-chart="${firstM.label}|${firstM.city}"></canvas></div>`;
+      el.appendChild(div);
+      return;
+    }
+
+    // Full group chart card
+    const groupId = g.group.replace(/[^a-zA-Z0-9]/g,'_');
+    const hidden = new Set();
+    CHART_STATES[groupId] = { metrics: realMetrics, hidden };
+
+    // Entity legend items — unique cities across metrics
+    const cities = [...new Set(realMetrics.map(m => m.city))];
+    const years = ['cy','ly','ly2'];
+
+    const entityLegend = cities.map(city => {
+      const col = entityColor(city);
+      return `<div class="gl-item" id="gli-${groupId}-${city}" onclick="toggleEntity('${groupId}','${city}',this)">
+        <div class="gl-swatch" style="background:${col}"></div>${city}
       </div>`;
     }).join('');
-    div.innerHTML=`<div class="metric-row-label">${g.group} <span class="owner-pip">· ${g.owner}</span></div><div class="cards-row">${cards}</div>`;
+
+    const yearLegend = years.map(yr => {
+      const dashes = yr === 'cy' ? '' : yr === 'ly' ? 'border-top: 3px dashed currentColor; background:none;' : 'border-top: 2px dotted currentColor; background:none;';
+      return `<div class="gl-item" id="gli-${groupId}-${yr}" onclick="toggleYear('${groupId}','${yr}',this)">
+        <div class="gl-swatch" style="background:${yr==='cy'?'#444':yr==='ly'?'#888':'#b0b8cc'};opacity:${yr==='cy'?1:yr==='ly'?0.7:0.4}"></div>${YEAR_LABEL[yr]}
+      </div>`;
+    }).join('');
+
+    // Stat tiles — Overall rows, current value + vs-LY
+    const overallM = realMetrics.filter(m => m.city === 'Overall' || m.city === 'YTD');
+    const keyMetrics = (overallM.length > 0 ? overallM : realMetrics).slice(0, 4);
+    const statTiles = keyMetrics.map(m => {
+      const v = lastVal(m.cy), ly = lastVal(m.ly);
+      const fmt = val => {
+        if (val == null) return '—';
+        if (m.unit === '%') return val.toFixed(1) + '%';
+        if (m.unit === 'score') return val.toFixed(2);
+        return Number.isInteger(val) ? String(val) : Math.round(val);
+      };
+      const p = pip(m);
+      let sub = '';
+      if (v != null && ly != null) {
+        const d = v - ly; const f = m.low ? -1 : 1;
+        const cls = f*d > 0 ? 'du' : f*d < 0 ? 'dd' : 'df';
+        sub = '<div class="gs-sub ' + cls + '">' + (d > 0 ? '▲' : d < 0 ? '▼' : '—') + Math.abs(d).toFixed(1) + ' vs LY</div>';
+      } else if (m.goal != null) {
+        sub = '<div class="gs-sub" style="color:var(--muted2)">Goal: ' + m.goal + (m.unit||'') + '</div>';
+      }
+      const lbl = keyMetrics.length > 1 ? m.label.replace(/^[%#]\s*/,'').replace(/ ?[-–] ?Overall$/,'').replace(/ Overall$/,'') : 'Overall';
+      return '<div class="gs-tile"><div class="gs-label"><span class="sc-pip ' + p + '"></span>' + lbl + '</div><div class="gs-val ' + (v != null ? vc(m) : 'v-muted') + '">' + fmt(v) + '</div>' + sub + '</div>';
+    }).join('');
+
+    const goalLineHtml = realMetrics[0] && realMetrics[0].goal != null
+      ? '<div class="gl-sep"></div><div style="display:flex;align-items:center;gap:4px;font-family:\'DM Mono\',monospace;font-size:9px;color:var(--muted)"><div style="width:16px;height:0;border-top:2px dashed #C3D52E"></div>Goal</div>'
+      : '';
+
+    const div = document.createElement('div');
+    div.className = 'group-card';
+    div.innerHTML = '<div class="group-header"><div class="group-title">' + g.group + '</div><div class="group-owner">' + g.owner + '</div></div>'
+      + (statTiles ? '<div class="group-stats">' + statTiles + '</div>' : '')
+      + '<div class="group-chart-wrap"><canvas data-group-chart="' + groupId + '"></canvas></div>'
+      + '<div class="group-legend"><div style="display:flex;gap:4px;flex-wrap:wrap">' + entityLegend + '</div><div class="gl-sep"></div><div style="display:flex;gap:4px;flex-wrap:wrap">' + yearLegend + '</div>' + goalLineHtml + '</div>';
     el.appendChild(div);
   });
+
   requestAnimationFrame(redrawAll);
+}
+
+function toggleEntity(groupId, city, el) {
+  const state = CHART_STATES[groupId];
+  if (!state) return;
+  const years = ['cy','ly','ly2'];
+  const keys = years.map(yr => `${city}|${yr}`);
+  const allHidden = keys.every(k => state.hidden.has(k));
+  if (allHidden) { keys.forEach(k => state.hidden.delete(k)); el.classList.remove('faded'); }
+  else { keys.forEach(k => state.hidden.add(k)); el.classList.add('faded'); }
+  const canvas = document.querySelector(`[data-group-chart="${groupId}"]`);
+  if (canvas) drawGroupChart(canvas, state.metrics, state.hidden);
+}
+
+function toggleYear(groupId, yr, el) {
+  const state = CHART_STATES[groupId];
+  if (!state) return;
+  const cities = [...new Set(state.metrics.map(m => m.city))];
+  const keys = cities.map(city => `${city}|${yr}`);
+  const allHidden = keys.every(k => state.hidden.has(k));
+  if (allHidden) { keys.forEach(k => state.hidden.delete(k)); el.classList.remove('faded'); }
+  else { keys.forEach(k => state.hidden.add(k)); el.classList.add('faded'); }
+  const canvas = document.querySelector(`[data-group-chart="${groupId}"]`);
+  if (canvas) drawGroupChart(canvas, state.metrics, state.hidden);
 }
 
 // ─── TOPLINE GOALS ────────────────────────────────────────────────────────────
@@ -719,33 +1087,65 @@ function updateTracker() {
 // ─── HEADLINES ────────────────────────────────────────────────────────────────
 function generateHeadlines() {
   const hl=[], hs=[];
+
+  // Topline metrics first — always summarize these regardless of direction
+  const toplineIds = ['% Staff Retention|Overall','% Teacher Retention|Overall','% TiR Retention|Overall','% Staffed|Overall'];
+  toplineIds.forEach(key => {
+    const m = METRICS[key];
+    if (!m) return;
+    const v = lastVal(m.cy), ly = lastVal(m.ly);
+    if (v == null) return;
+    const vsGoal = m.goal != null ? ` vs. goal of ${m.goal}${m.unit||''}` : '';
+    const vsLY = ly != null ? ` (${v > ly ? '▲' : v < ly ? '▼' : '—'}${Math.abs(v-ly).toFixed(1)} vs. last year)` : '';
+    const status = m.goal != null
+      ? (v >= m.goal ? 'on target' : v >= m.goal - 3 ? 'approaching goal' : 'below goal')
+      : (ly != null ? (v >= ly ? 'ahead of last year' : 'behind last year') : 'tracking');
+    hl.push(`<b>${m.label}</b> is at ${v}${m.unit||''} — ${status}${vsGoal}${vsLY}.`);
+  });
+
+  // Remaining metrics — flag notable items
   Object.values(METRICS).forEach(m => {
-    const v=lastVal(m.cy), ly=lastVal(m.ly);
-    if(v==null) return;
-    const loc = m.city && m.city!=='Overall' ? ` (${m.city})` : '';
-    if(m.goal!=null && !m.low) {
-      const d=v-m.goal;
-      if(d>=5) hl.push(`<b>${m.label}${loc}</b> at ${v}${m.unit||''} — ${d.toFixed(1)} pts above goal.`);
-      else if(d>=0) hl.push(`<b>${m.label}${loc}</b> on target at ${v}${m.unit||''}.`);
-      else if(d>=-3) hs.push(`<b>${m.label}${loc}</b> is ${Math.abs(d).toFixed(1)} pts below goal — ${v}${m.unit||''} vs. ${m.goal}${m.unit||''}.`);
+    if (toplineIds.includes(`${m.label}|${m.city}`)) return; // already handled
+    const v = lastVal(m.cy), ly = lastVal(m.ly);
+    if (v == null) return;
+    const loc = m.city && m.city !== 'Overall' ? ` (${m.city})` : '';
+
+    if (m.goal != null && !m.low) {
+      const d = v - m.goal;
+      if (d >= 5) hl.push(`<b>${m.label}${loc}</b> is ${d.toFixed(1)} pts above goal at ${v}${m.unit||''}.`);
+      else if (d >= 0) hl.push(`<b>${m.label}${loc}</b> on target at ${v}${m.unit||''} (goal: ${m.goal}${m.unit||''}).`);
+      else if (d >= -3) hs.push(`<b>${m.label}${loc}</b> is ${Math.abs(d).toFixed(1)} pts below goal — ${v}${m.unit||''} vs. ${m.goal}${m.unit||''}.`);
       else hs.push(`⚠ <b>${m.label}${loc}</b> significantly below goal: ${v}${m.unit||''} vs. ${m.goal}${m.unit||''}.`);
     }
-    if(ly!=null) {
-      const d=v-ly, abs=Math.abs(d).toFixed(1);
-      if(!m.low) {
-        if(d<=-2) hs.push(`<b>${m.label}${loc}</b> is ${abs} pts below last year (${v}${m.unit||''} vs. ${ly}${m.unit||''} LY).`);
-        else if(d>=2) hl.push(`<b>${m.label}${loc}</b> is ${abs} pts ahead of last year.`);
+
+    if (ly != null) {
+      const d = v - ly, abs = Math.abs(d).toFixed(1);
+      if (!m.low) {
+        if (d <= -2) hs.push(`<b>${m.label}${loc}</b> is ${abs} pts below last year (${v}${m.unit||''} vs. ${ly}${m.unit||''} LY).`);
+        else if (d >= 3) hl.push(`<b>${m.label}${loc}</b> is ${abs} pts ahead of last year.`);
       } else {
-        if(d>2) hs.push(`<b>${m.label}${loc}</b> running higher than last year (${v}${m.unit||''} vs. ${ly}${m.unit||''} LY).`);
+        if (d > 2) hs.push(`<b>${m.label}${loc}</b> running higher than last year (${v}${m.unit||''} vs. ${ly}${m.unit||''} LY).`);
       }
     }
   });
-  TOPLINE_GOALS.forEach(row => {
-    if(row.status==='Off Track — Concerned') hs.push(`Goal: "<b>${row.goal}</b>" (${row.owner}) is Off Track — Concerned.`);
-    else if(row.status==='Off Track — Can Get Back') hl.push(`Goal: "<b>${row.goal}</b>" (${row.owner}) off track but recoverable.`);
-  });
-  document.getElementById('hl-list').innerHTML = hl.length ? hl.map(h=>`<li>${h}</li>`).join('') : '<li class="ph">No notable positives to flag this week.</li>';
-  document.getElementById('hs-list').innerHTML = hs.length ? hs.map(h=>`<li>${h}</li>`).join('') : '<li class="ph">No flags this week — looking solid.</li>';
+
+  // KLO goal summary
+  const onTrack = TOPLINE_GOALS.filter(g => g.status === 'On Track' || g.status === 'Complete');
+  const offTrack = TOPLINE_GOALS.filter(g => g.status === 'Off Track — Concerned');
+  const recovering = TOPLINE_GOALS.filter(g => g.status === 'Off Track — Can Get Back');
+  const notStarted = TOPLINE_GOALS.filter(g => g.status === 'Not Started Yet');
+
+  if (onTrack.length) hl.push(`<b>${onTrack.length} of ${TOPLINE_GOALS.length} Topline Goals</b> are on track: ${onTrack.map(g=>g.goal).join('; ')}.`);
+  if (recovering.length) recovering.forEach(row => hl.push(`Goal "<b>${row.goal}</b>" (${row.owner}) is off track but recoverable.`));
+  if (offTrack.length) offTrack.forEach(row => hs.push(`⚠ Goal "<b>${row.goal}</b>" (${row.owner}) is Off Track — Concerned.`));
+  if (notStarted.length) hs.push(`${notStarted.length} goal${notStarted.length>1?'s':''} not yet started: ${notStarted.map(g=>g.goal).join('; ')}.`);
+
+  // If still nothing, say so clearly
+  if (hl.length === 0) hl.push('No data entered for this week yet — sync after the team enters numbers.');
+  if (hs.length === 0) hs.push('No flags this week.');
+
+  document.getElementById('hl-list').innerHTML = hl.map(h=>`<li>${h}</li>`).join('');
+  document.getElementById('hs-list').innerHTML = hs.map(h=>`<li>${h}</li>`).join('');
 }
 
 // ─── HOW TO USE ───────────────────────────────────────────────────────────────
@@ -754,7 +1154,7 @@ function buildHowTo() {
   document.getElementById('howto-owners').innerHTML = OWNERS.map(o =>
     `<tr style="background:${OWNER_BG[o.name]||'#fff'}">
       <td style="font-weight:600;color:var(--navy)">${o.name}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">${o.role}</td>
+      <td style="font-family:monospace;font-size:10px;color:var(--muted)">${o.role}</td>
       <td style="font-size:11px">${o.groups.join(' · ')}</td>
     </tr>`
   ).join('');
