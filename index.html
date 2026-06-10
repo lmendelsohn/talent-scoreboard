@@ -1061,16 +1061,10 @@ function renderTableCard(el, g, metrics) {
       barHtml = '<div class="bar-wrap"><div class="bar-fill" style="width:' + w + '%;background:' + barColor + '"></div></div>';
     }
 
-    // Simple label rule: if this metric label appears more than once in the group,
-    // show the city (the label is the group title, city differentiates rows).
-    // If it appears exactly once, show a short version of the metric name.
-    const labelCount = metrics.filter(x => x.label === m.label).length;
-    let label;
-    if (labelCount > 1) {
-      label = '<span class="sc-pip ' + p + '"></span>' + m.city;
-    } else {
-      label = m.label.replace(/^[%#]\s*/,'').replace(/ - Overall$/,'').replace(/ Overall$/,'').replace(/ \(cumulative\)/,'');
-    }
+    // Label: for multi-metric show metric name, for multi-entity show city
+    const label = isMultiMetric
+      ? m.label.replace(/^[%#]\s*/,'').replace(/ - Overall$/,'').replace(/ Overall$/,'')
+      : '<span class="sc-pip ' + p + '"></span>' + m.city;
 
     return '<tr>'
       + '<td class="entity-name">' + label + '</td>'
@@ -1083,16 +1077,11 @@ function renderTableCard(el, g, metrics) {
   }).join('');
 
   const barCol = isPercent ? '<th class="bar-col"></th>' : '';
-  // Header: if all rows have same label -> "Entity", otherwise -> "Metric"
-  const allSameLabelG = new Set(metrics.map(m=>m.label)).size === 1;
-  // Also treat groups where most rows share a label as entity groups
-  const maxLabelCount = Math.max(...[...new Set(metrics.map(m=>m.label))].map(l=>metrics.filter(x=>x.label===l).length));
-  const colHeader = (allSameLabelG || maxLabelCount > 1) ? 'Entity' : 'Metric';
 
   card.innerHTML = '<div class="sb-card-head"><div class="sb-title">' + g.group + '</div><div class="sb-owner">' + g.owner + '</div></div>'
     + '<table class="sb-table">'
     + '<thead><tr>'
-    + '<th class="entity-col">' + colHeader + '</th>'
+    + '<th class="entity-col">' + (isMultiMetric ? 'Metric' : 'Entity') + '</th>'
     + '<th>26–27</th>'
     + '<th>25–26</th>'
     + '<th>24–25</th>'
