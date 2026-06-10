@@ -785,391 +785,122 @@ function setSyncStatus(state, msg) {
 // ─── SYNC FROM SHEET ─────────────────────────────────────────────────────────
 async function syncFromSheet() {
   const btn = document.getElementById('sync-btn');
-  btn.classList.add('syncing');
-  btn.textContent = '↻ Syncing…';
+  btn.classList.add('syncing'); btn.textContent = '↻ Syncing…';
   setSyncStatus('loading', 'Syncing from Google Sheet…');
-
   try {
-    // Fetch all data tabs in parallel
-    // Fetch 26-27 live data via CORS proxy — historical data is seeded below
-    async function fetchCSV(url) {
-      const proxies = [
+    async function fetchTab(gid) {
+      const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/export?format=csv&gid=' + gid;
+      // Try direct first (works when sheet is public), then proxy
+      for (const makeUrl of [
+        u => u,
         u => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u),
         u => 'https://corsproxy.io/?' + encodeURIComponent(u),
-      ];
-      for (const makeProxy of proxies) {
+      ]) {
         try {
-          const r = await fetch(makeProxy(url), {signal: AbortSignal.timeout(8000)});
+          const r = await fetch(makeUrl(url), {signal: AbortSignal.timeout(8000)});
           if (!r.ok) continue;
           const ct = r.headers.get('content-type') || '';
-          if (ct.includes('json')) {
-            const j = await r.json();
-            const text = j.contents || j.data || '';
-            if (text.length > 50) return text;
-          } else {
-            const text = await r.text();
-            if (text.length > 50) return text;
-          }
+          const text = ct.includes('json') ? (await r.json()).contents || '' : await r.text();
+          if (text && text.length > 100) return text;
         } catch(e) { continue; }
       }
       return '';
     }
 
-    const text2627 = await fetchCSV(CSV_URLS.data2627);
-    const text2526 = ''; // historical seeded below
-    const text2425 = ''; // historical seeded below
+    const [t2627, t2526, t2425] = await Promise.all([
+      fetchTab('227019366'),
+      fetchTab('146276175'),
+      fetchTab('77979022'),
+    ]);
 
     buildMetricsFromDefaults();
     seedHistoricalData();
 
-    // 26-27 = current year (cy), 25-26 = last year (ly), 24-25 = prior year (ly2)
-    parseDataTab(text2627, 'cy');
-    parseDataTab(text2526, 'ly');
-    parseDataTab(text2425, 'ly2');
-
-    // Add ly2 field to all metrics
-    Object.values(METRICS).forEach(m => { if (!m.ly2) m.ly2 = Array(40).fill(null); });
+    parseDataTab(t2627, 'cy');
+    parseDataTab(t2526, 'ly');
+    parseDataTab(t2425, 'ly2');
 
     const populated = Object.values(METRICS).filter(m => lastVal(m.cy) != null).length;
-    setSyncStatus('ok', `Synced ${populated} metrics with data · ${new Date().toLocaleTimeString()}`);
+    const ly_populated = Object.values(METRICS).filter(m => lastVal(m.ly) != null).length;
+
+    if (populated === 0 && ly_populated === 0) {
+      throw new Error('Sheet returned data but no metrics matched — check sharing settings');
+    }
+
+    setSyncStatus('ok', 'Synced · ' + populated + ' metrics with 26–27 data · ' + ly_populated + ' with 25–26 · ' + new Date().toLocaleTimeString());
     renderAll();
     updateEntryPreview();
-
   } catch(e) {
     buildMetricsFromDefaults();
     seedHistoricalData();
-    setSyncStatus('err', `Could not reach Sheet — using seeded data. Make sure the Sheet is set to "Anyone with the link can view". (${e.message})`);
+    setSyncStatus('err', 'Could not reach Sheet — using seeded data. (' + e.message + ')');
     renderAll();
   }
-
-  btn.classList.remove('syncing');
-  btn.textContent = '↻ Sync from Sheet';
+  btn.classList.remove('syncing'); btn.textContent = '↻ Sync from Sheet';
 }
 
-// Parse a data tab CSV and populate METRICS[key].cy or .ly
-// Tab structure: row 1 = title, row 2 = column headers (Owner,Group,Metric,City,Unit,Goal,Freq,Low?,Notes,date1,date2,...)
-// Data rows: col 0=Owner(may be blank), col 1=Group(may be blank), col 2=Metric, col 3=City, cols 9+=weekly values
+// Parse a CSV data tab and load values into METRICS
+// Sheet structure: 2 header rows (title + blank), then column header row, then data rows
+// Columns: Owner(0), Section(1), Indicator(2), City/Region(3), Unit(4), Goal(5), Freq(6), Low?(7), SourceLabel(8), date1(9), date2(10)...
 function parseDataTab(text, field) {
-  if (!text || text.length < 10) return;
+  if (!text || text.length < 50) return;
   const rows = parseCSV(text);
   if (rows.length < 3) return;
 
-  // Find header row — the one that has "Metric" or "Owner" in col 0 or 2
+  // Find the header row — look for a row where col 2 = "Indicator" or col 0 = "Owner"
   let headerIdx = -1;
-  for (let i = 0; i < Math.min(5, rows.length); i++) {
-    if (rows[i][2] && rows[i][2].toLowerCase().includes('metric')) { headerIdx = i; break; }
-    if (rows[i][0] && rows[i][0].toLowerCase().includes('owner')) { headerIdx = i; break; }
+  for (let i = 0; i < Math.min(10, rows.length); i++) {
+    const r = rows[i];
+    if (!r || r.length < 3) continue;
+    if ((r[0] || '').toLowerCase() === 'owner' || (r[2] || '').toLowerCase() === 'indicator') {
+      headerIdx = i; break;
+    }
   }
-  if (headerIdx < 0) headerIdx = 1; // fallback: row 2
+  if (headerIdx < 0) return; // can't find header
 
   const header = rows[headerIdx];
-  // Find where data columns start — look for first date-like header after col 8
+  // Find where weekly date columns start — first col after index 8 that looks like a date
   let dataStart = 9;
-  for (let c = 6; c < header.length; c++) {
-    if (header[c] && /\d{1,2}\/\d{1,2}/.test(header[c])) { dataStart = c; break; }
+  for (let ci = 7; ci < header.length; ci++) {
+    if (header[ci] && /\d{1,2}\/\d{1,2}/.test(header[ci])) { dataStart = ci; break; }
   }
-
-  const numWeeks = header.length - dataStart;
+  const numWeeks = Math.min(40, header.length - dataStart);
   if (numWeeks <= 0) return;
 
-  // Walk data rows
   let lastOwner = '', lastGroup = '';
-  for (let r = headerIdx + 1; r < rows.length; r++) {
-    const row = rows[r];
+  for (let ri = headerIdx + 1; ri < rows.length; ri++) {
+    const row = rows[ri];
     if (!row || row.length < 4) continue;
-
-    const owner = row[0] || lastOwner;
-    const group = row[1] || lastGroup;
-    const metric = row[2];
-    const city = row[3];
-
-    if (!metric || metric.startsWith('⚠') || metric === 'Metric') continue;
+    const owner = (row[0] || '').trim();
+    const group = (row[1] || '').trim();
+    const metric = (row[2] || '').trim();
+    const city = (row[3] || '').trim();
+    if (!metric || metric === 'Indicator' || metric === 'Owner') continue;
     if (owner) lastOwner = owner;
     if (group) lastGroup = group;
 
-    const key = `${metric}|${city}`;
-    if (!METRICS[key]) continue; // skip rows we don't track
+    const key = metric + '|' + city;
+    if (!METRICS[key]) continue;
 
-    // Parse weekly values
     const arr = Array(40).fill(null);
-    for (let c = 0; c < numWeeks && c < 40; c++) {
-      const raw = row[dataStart + c];
-      if (!raw || raw === '' || raw === '—' || raw.toLowerCase().includes('no data')
-          || raw.toLowerCase().includes('break') || raw.toLowerCase().includes('can\'t')) continue;
-      // Strip % sign and convert
+    for (let ci = 0; ci < numWeeks; ci++) {
+      const raw = (row[dataStart + ci] || '').trim();
+      if (!raw || raw === '—' || raw === '-') continue;
       const cleaned = raw.replace(/[%,\s]/g, '');
       const num = parseFloat(cleaned);
       if (!isNaN(num)) {
-        // If value looks like a decimal already (0.xx) and unit is %, multiply up
-        arr[c] = (num > 0 && num <= 1 && METRICS[key].unit === '%') ? num * 100 : num;
+        // Values entered as decimals (0.94) need to be multiplied up for % metrics
+        arr[ci] = (num > 0 && num <= 1 && METRICS[key].unit === '%') ? num * 100 : num;
       }
     }
-    METRICS[key][field] = arr;
+    // Only overwrite if this tab has actual data for this metric
+    const hasData = arr.some(v => v !== null);
+    if (hasData) METRICS[key][field] = arr;
   }
 }
 
-// Parse goals tab and update TOPLINE_GOALS statuses
-// Structure: row 1=title, row 2=headers (Goal, Owner, Status, Notes), row 3+=data
-function parseGoalsTab(text) {
-  if (!text) return;
-  const rows = parseCSV(text);
-  let dataStart = 2;
-  for (let i = 0; i < Math.min(4, rows.length); i++) {
-    if (rows[i][0] && rows[i][0].toLowerCase().includes('goal')) { dataStart = i + 1; break; }
-  }
-  for (let r = dataStart; r < rows.length; r++) {
-    const row = rows[r];
-    if (!row || !row[0]) continue;
-    const goalText = row[0].trim();
-    const status = row[2] ? row[2].trim() : '';
-    const notes = row[3] ? row[3].trim() : '';
-    if (!status) continue;
-    // Match by goal text (partial ok)
-    const match = TOPLINE_GOALS.find(g => g.goal.toLowerCase() === goalText.toLowerCase()
-      || goalText.toLowerCase().includes(g.goal.toLowerCase().slice(0, 20)));
-    if (match && S_OPTS.includes(status)) {
-      match.status = status;
-      if (notes) match.notes = notes;
-    }
-  }
-}
+// Parse CSV text into array of arrays, handling quoted fields
 
-function updateEntryPreview() {
-  const el = document.getElementById('entry-preview');
-  const populated = Object.values(METRICS).filter(m => lastVal(m.cy) != null);
-  if (populated.length === 0) {
-    el.innerHTML = '<span style="color:var(--muted)">No data values found in 26-27 tab yet — enter numbers in the Sheet and sync again.</span>';
-    return;
-  }
-  const byOwner = {};
-  populated.forEach(m => { byOwner[m.owner] = (byOwner[m.owner]||0) + 1; });
-  el.innerHTML = Object.entries(byOwner).map(([o,n]) =>
-    `<span style="margin-right:16px"><b style="color:var(--text)">${o}</b>: ${n} metrics with data</span>`
-  ).join('') + `<br><span style="color:var(--muted2)">Last synced ${new Date().toLocaleTimeString()}</span>`;
-}
-
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
-function lastVal(arr) { for(let i=arr.length-1;i>=0;i--) if(arr[i]!=null) return arr[i]; return null; }
-
-function pip(m) {
-  const v = lastVal(m.cy);
-  if (v == null) return 'pip-x';
-  if (m.low) {
-    const prev = m.cy.slice(0,-1).reverse().find(x=>x!=null);
-    if (prev != null) return v < prev ? 'pip-g' : v === prev ? 'pip-x' : 'pip-y';
-    return 'pip-x';
-  }
-  if (m.goal != null) { const d = v - m.goal; return d >= 0 ? 'pip-g' : d >= -3 ? 'pip-y' : 'pip-r'; }
-  const ly = lastVal(m.ly);
-  if (ly != null) { const d = v - ly; return d >= 0 ? 'pip-g' : d >= -1 ? 'pip-y' : 'pip-r'; }
-  return 'pip-x';
-}
-function vc(m) { const p=pip(m); return p==='pip-g'?'v-green':p==='pip-y'?'v-yellow':p==='pip-r'?'v-red':'v-muted'; }
-
-// ─── ENTITY COLORS ──────────────────────────────────────────────────────────
-const ENTITY_COLORS = {
-  'Overall':'#001E62','Newark':'#57C0E9','Camden':'#F9A21A',
-  'Miami':'#EE3C37','Paterson':'#C3D52E','KTAF':'#7B5EA7',
-  'YTD':'#001E62','[text]':'#001E62',
-};
-function entityColor(c) { return ENTITY_COLORS[c] || '#8492B4'; }
-
-const CHART_STATES = {}; // kept for compat
-function encodeKey(l,c){return (l+'|'+c).replace(/[^a-zA-Z0-9]/g,'_');}
-
-// ─── VALUE FORMATTING ────────────────────────────────────────────────────────
-function fmtVal(val, unit) {
-  if (val == null) return '—';
-  if (unit === '%') return val.toFixed(1) + '%';
-  if (unit === 'score') return val.toFixed(2);
-  if (unit === 'days') return val.toFixed(1) + 'd';
-  return Number.isInteger(val) ? String(val) : Math.round(val).toString();
-}
-
-
-
-
-const STAT_ONLY_GROUPS = new Set(['Teacher ITR','Lattice & Sys3 PM Completion','Teacher PM Completion']);
-
-function renderScoreboard() {
-  const el = document.getElementById('scoreboard-rows');
-  el.innerHTML = '';
-  DEFAULT_METRIC_GROUPS.forEach(g => {
-    const metrics = g.metrics
-      .filter(md => md.city !== '[text]' && md.unit !== 'text')
-      .map(md => {
-        const key = md.label + '|' + md.city;
-        return METRICS[key] || { ...md, cy:Array(40).fill(null), ly:Array(40).fill(null), ly2:Array(40).fill(null), group:g.group, owner:g.owner };
-      });
-    if (metrics.length === 0) return;
-    if (STAT_ONLY_GROUPS.has(g.group)) {
-      renderStatCard(el, g, metrics);
-    } else {
-      renderTableCard(el, g, metrics);
-    }
-    if (g.group === 'Departures') renderResignationTable(el);
-  });
-}
-
-function renderTableCard(el, g, metrics) {
-  // Determine if this is a "multi-metric" group (different labels) or "multi-entity" (same label, different cities)
-  const uniqueLabels = new Set(metrics.map(m => m.label));
-  const isMultiMetric = uniqueLabels.size > 1;
-
-  const card = document.createElement('div');
-  card.className = 'sb-card';
-
-  // Determine unit for bar scaling
-  const unit = metrics[0].unit;
-  const isPercent = unit === '%';
-  const isScore = unit === 'score';
-
-  // Build table rows
-  const rows = metrics.map(m => {
-    const cy = lastVal(m.cy);
-    // vs LY: compare same week index as latest cy data point
-    const cyIdx = m.cy ? m.cy.reduce((best,v,i)=>v!=null?i:best,-1) : -1;
-    const lyAtSameWeek = cyIdx >= 0 && m.ly ? m.ly[cyIdx] : null;
-    // Fallback: nearest non-null in ly within ±2 weeks
-    let lyForDelta = lyAtSameWeek;
-    if (lyForDelta == null && cyIdx >= 0 && m.ly) {
-      for (let d=1; d<=2; d++) {
-        if (cyIdx-d >= 0 && m.ly[cyIdx-d] != null) { lyForDelta = m.ly[cyIdx-d]; break; }
-        if (cyIdx+d < m.ly.length && m.ly[cyIdx+d] != null) { lyForDelta = m.ly[cyIdx+d]; break; }
-      }
-    }
-    const ly = lyForDelta;
-    const ly2 = lastVal(m.ly2);
-    const p = pip(m);
-    const col = entityColor(m.city);
-
-    // Delta vs last year AT SAME POINT IN YEAR
-    let deltaHtml = '<span style="color:var(--muted2)">—</span>';
-    if (cy != null && ly != null) {
-      const d = cy - ly;
-      const f = m.low ? -1 : 1;
-      const cls = f * d > 0 ? 'du' : f * d < 0 ? 'dd' : 'df';
-      const sym = d > 0 ? '▲' : d < 0 ? '▼' : '—';
-      deltaHtml = '<span class="' + cls + '">' + sym + Math.abs(d).toFixed(1) + (unit === '%' ? '%' : '') + '</span>';
-    }
-
-    // Bar (percent only, scaled 0-100, or 0-max for counts)
-    let barHtml = '';
-    if (isPercent && cy != null) {
-      const w = Math.min(100, Math.max(0, cy));
-      const barColor = p === 'pip-g' ? '#1a7a4a' : p === 'pip-r' ? '#c0201c' : p === 'pip-y' ? '#d4900a' : '#8492B4';
-      barHtml = '<div class="bar-wrap"><div class="bar-fill" style="width:' + w + '%;background:' + barColor + '"></div></div>';
-    }
-
-    // Label: for multi-metric show metric name, for multi-entity show city
-    const label = isMultiMetric
-      ? m.label.replace(/^[%#]\s*/,'').replace(/ - Overall$/,'').replace(/ Overall$/,'')
-      : '<span class="sc-pip ' + p + '"></span>' + m.city;
-
-    return '<tr>'
-      + '<td class="entity-name">' + label + '</td>'
-      + '<td class="cur-val ' + vc(m) + '">' + fmtVal(cy, unit) + '</td>'
-      + '<td class="ly-val">' + fmtVal(ly, unit) + '</td>'
-      + '<td class="ly2-val">' + fmtVal(ly2, unit) + '</td>'
-      + '<td class="delta-val">' + deltaHtml + '</td>'
-      + (isPercent ? '<td class="bar-cell">' + barHtml + '</td>' : '')
-      + '</tr>';
-  }).join('');
-
-  const barCol = isPercent ? '<th class="bar-col"></th>' : '';
-
-  card.innerHTML = '<div class="sb-card-head"><div class="sb-title">' + g.group + '</div><div class="sb-owner">' + g.owner + '</div></div>'
-    + '<table class="sb-table">'
-    + '<thead><tr>'
-    + '<th class="entity-col">' + (isMultiMetric ? 'Metric' : 'Entity') + '</th>'
-    + '<th>26–27</th>'
-    + '<th>25–26</th>'
-    + '<th>24–25</th>'
-    + '<th>vs LY</th>'
-    + barCol
-    + '</tr></thead>'
-    + '<tbody>' + rows + '</tbody>'
-    + '</table>'
-    + '<div class="sb-year-legend">'
-    + '<div class="sb-leg-item"><div class="sb-leg-dot" style="background:#001E62"></div>26–27 this year</div>'
-    + '<div class="sb-leg-item"><div class="sb-leg-dot" style="background:#F9A21A"></div>25–26 last year</div>'
-    + '<div class="sb-leg-item"><div class="sb-leg-dot" style="background:#d0d4e0"></div>24–25 prior year</div>'
-    + '</div>';
-
-  el.appendChild(card);
-}
-
-function renderStatCard(el, g, metrics) {
-  const card = document.createElement('div');
-  card.className = 'sb-card';
-  const unit = metrics[0].unit;
-
-  const rows = metrics.map(m => {
-    const cy = lastVal(m.cy);
-    const cyIdx2 = m.cy ? m.cy.reduce((b,v,i)=>v!=null?i:b,-1) : -1;
-    let lyS = cyIdx2>=0&&m.ly ? m.ly[cyIdx2] : null;
-    if (lyS==null&&cyIdx2>=0&&m.ly) { for(let d=1;d<=2;d++){if(cyIdx2-d>=0&&m.ly[cyIdx2-d]!=null){lyS=m.ly[cyIdx2-d];break;}if(cyIdx2+d<m.ly.length&&m.ly[cyIdx2+d]!=null){lyS=m.ly[cyIdx2+d];break;}}}
-    const ly = lyS;
-    const p = pip(m);
-    let deltaHtml = '';
-    if (cy != null && ly != null) {
-      const d = cy - ly; const f = m.low ? -1 : 1;
-      const cls = f*d>0?'du':f*d<0?'dd':'df';
-      const sym = d>0?'▲':d<0?'▼':'—';
-      deltaHtml = ' <span class="' + cls + '">' + sym + Math.abs(d).toFixed(1) + (unit==='%'?'%':'') + ' vs LY</span>';
-    }
-    const label = metrics.length > 1 ? (m.city !== 'Overall' ? m.city : m.label) : m.label;
-    return '<tr>'
-      + '<td class="entity-name"><span class="sc-pip ' + p + '"></span>' + label + '</td>'
-      + '<td class="cur-val ' + vc(m) + '">' + fmtVal(cy, unit) + '</td>'
-      + '<td class="ly-val">' + fmtVal(ly, unit) + '</td>'
-      + '<td class="delta-val">' + deltaHtml + '</td>'
-      + '</tr>';
-  }).join('');
-
-  card.innerHTML = '<div class="sb-card-head"><div class="sb-title">' + g.group + '</div><div class="sb-owner">' + g.owner + '</div></div>'
-    + '<table class="sb-table"><thead><tr>'
-    + '<th class="entity-col">Metric</th><th>26–27</th><th>25–26</th><th>vs LY</th>'
-    + '</tr></thead><tbody>' + rows + '</tbody></table>';
-
-  el.appendChild(card);
-}
-
-function renderResignationTable(el) {
-  const reasons = [
-    {label:'Personal Reasons',      key:'Resignation Reason: % Personal|Overall'},
-    {label:'Career Change',          key:'Resignation Reason: % Career Change|Overall'},
-    {label:'Leave Non-Return',       key:'Resignation Reason: % Leave Non-Return|Overall'},
-    {label:'Compensation',           key:'Resignation Reason: % Compensation|Overall'},
-    {label:'Career Advancement',     key:'Resignation Reason: % Career Advancement|Overall'},
-    {label:'Other / Not Disclosed',  key:'Resignation Reason: % Other / Not Disclosed|Overall'},
-  ];
-  const rows = reasons.map(r => {
-    const m = METRICS[r.key];
-    const cy = m ? lastVal(m.cy) : null;
-    const ly = m ? lastVal(m.ly) : null;
-    const ly2 = m ? lastVal(m.ly2) : null;
-    const barW = cy != null ? Math.min(100, cy).toFixed(1) : '0';
-    return '<tr>'
-      + '<td class="entity-name">' + r.label + '</td>'
-      + '<td class="cur-val">' + fmtVal(cy, '%') + '</td>'
-      + '<td class="ly-val">' + fmtVal(ly, '%') + '</td>'
-      + '<td class="ly2-val">' + fmtVal(ly2, '%') + '</td>'
-      + '<td class="bar-cell"><div class="bar-wrap"><div class="bar-fill" style="width:' + barW + '%;background:#001E62;opacity:.5"></div></div></td>'
-      + '</tr>';
-  }).join('');
-  const card = document.createElement('div');
-  card.className = 'sb-card';
-  card.style.marginTop = '-8px';
-  card.innerHTML = '<div class="sb-card-head"><div class="sb-title">Resignation Reasons</div><div class="sb-owner">Jasmin</div></div>'
-    + '<table class="sb-table"><thead><tr>'
-    + '<th class="entity-col">Reason</th><th>26–27</th><th>25–26</th><th>24–25</th><th class="bar-col"></th>'
-    + '</tr></thead><tbody>' + rows + '</tbody></table>';
-  el.appendChild(card);
-}
-
-// redrawAll kept as no-op (no more canvas charts)
-function redrawAll() {}
 
 
 // ─── TOPLINE GOALS ────────────────────────────────────────────────────────────
@@ -1304,6 +1035,217 @@ function switchPage(id) {
 // ─── WEEK DATE ────────────────────────────────────────────────────────────────
 document.getElementById('week-date').textContent =
   new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+// ─── UTILITY FUNCTIONS ───────────────────────────────────────────────────────
+function lastVal(arr) {
+  if (!arr) return null;
+  for (let i = arr.length - 1; i >= 0; i--) if (arr[i] != null) return arr[i];
+  return null;
+}
+
+const ENTITY_COLORS = {
+  'Overall':'#001E62','Newark':'#57C0E9','Camden':'#F9A21A',
+  'Miami':'#EE3C37','Paterson':'#C3D52E','KTAF':'#7B5EA7','YTD':'#001E62',
+};
+function entityColor(city) { return ENTITY_COLORS[city] || '#8492B4'; }
+
+function pip(m) {
+  const v = lastVal(m.cy);
+  if (v == null) return 'pip-x';
+  if (m.low) {
+    const prev = (m.cy||[]).slice(0,-1).reverse().find(x=>x!=null);
+    if (prev != null) return v < prev ? 'pip-g' : v === prev ? 'pip-x' : 'pip-y';
+    return 'pip-x';
+  }
+  if (m.goal != null) { const d = v - m.goal; return d >= 0 ? 'pip-g' : d >= -3 ? 'pip-y' : 'pip-r'; }
+  const ly = lastVal(m.ly);
+  if (ly != null) { const d = v - ly; return d >= 0 ? 'pip-g' : d >= -1 ? 'pip-y' : 'pip-r'; }
+  return 'pip-x';
+}
+function vc(m) {
+  const p = pip(m);
+  return p==='pip-g'?'v-green':p==='pip-y'?'v-yellow':p==='pip-r'?'v-red':'v-muted';
+}
+
+function encodeKey(label, city) { return (label+'|'+city).replace(/[^a-zA-Z0-9]/g,'_'); }
+
+function updateEntryPreview() {
+  const el = document.getElementById('entry-preview');
+  if (!el) return;
+  const populated = Object.values(METRICS).filter(m => lastVal(m.cy) != null);
+  if (!populated.length) { el.innerHTML = '<span style="color:var(--muted)">No 26–27 data synced yet.</span>'; return; }
+  el.innerHTML = populated.slice(0,20).map(m =>
+    '<div style="display:flex;justify-content:space-between;gap:16px;border-bottom:0.5px solid var(--border2);padding:3px 0">'
+    + '<span>' + m.label + ' · ' + m.city + '</span>'
+    + '<b>' + (lastVal(m.cy) != null ? lastVal(m.cy).toFixed(m.unit==='%'?1:m.unit==='score'?2:0) + (m.unit==='%'?'%':'') : '—') + '</b>'
+    + '</div>'
+  ).join('') + (populated.length > 20 ? '<div style="color:var(--muted);margin-top:6px">…and ' + (populated.length-20) + ' more</div>' : '');
+}
+
+
+// ─── SCOREBOARD RENDERING ────────────────────────────────────────────────────
+const STAT_ONLY_GROUPS = new Set(['Teacher ITR','Lattice & Sys3 PM Completion','Teacher PM Completion']);
+
+function renderScoreboard() {
+  const el = document.getElementById('scoreboard-rows');
+  if (!el) return;
+  el.innerHTML = '';
+  DEFAULT_METRIC_GROUPS.forEach(g => {
+    const metrics = g.metrics
+      .filter(md => md.city !== '[text]' && md.unit !== 'text')
+      .map(md => {
+        const key = md.label + '|' + md.city;
+        return METRICS[key] || Object.assign({}, md, {cy:Array(40).fill(null),ly:Array(40).fill(null),ly2:Array(40).fill(null),group:g.group,owner:g.owner});
+      });
+    if (metrics.length === 0) return;
+    if (STAT_ONLY_GROUPS.has(g.group)) {
+      renderStatCard(el, g, metrics);
+    } else {
+      renderTableCard(el, g, metrics);
+    }
+    if (g.group === 'Departures') renderResignationTable(el);
+  });
+}
+
+function fmtVal(val, unit) {
+  if (val == null) return '—';
+  if (unit === '%') return val.toFixed(1) + '%';
+  if (unit === 'score') return val.toFixed(2);
+  if (unit === 'days') return val.toFixed(1) + 'd';
+  return Number.isInteger(val) ? String(val) : Math.round(val).toString();
+}
+
+function renderTableCard(el, g, metrics) {
+  const unit = metrics[0].unit;
+  const isPercent = unit === '%';
+  const card = document.createElement('div');
+  card.className = 'sb-card';
+
+  const rows = metrics.map(m => {
+    const cy = lastVal(m.cy);
+    const cyIdx = m.cy ? m.cy.reduce((b,v,i) => v!=null ? i : b, -1) : -1;
+    // vs LY: same week index as latest cy data point (±2 week fallback)
+    let ly = null;
+    if (cyIdx >= 0 && m.ly) {
+      ly = m.ly[cyIdx];
+      if (ly == null) {
+        for (let d=1; d<=2; d++) {
+          if (cyIdx-d>=0 && m.ly[cyIdx-d]!=null) { ly=m.ly[cyIdx-d]; break; }
+          if (cyIdx+d<m.ly.length && m.ly[cyIdx+d]!=null) { ly=m.ly[cyIdx+d]; break; }
+        }
+      }
+    }
+    // If no cy data at all, fall back to lastVal for display
+    if (cy == null) ly = lastVal(m.ly);
+    const ly2 = lastVal(m.ly2);
+    const p = pip(m);
+
+    // Delta
+    let deltaHtml = '<span style="color:var(--muted2)">—</span>';
+    if (cy != null && ly != null) {
+      const d = cy - ly; const f = m.low ? -1 : 1;
+      const cls = f*d>0?'du':f*d<0?'dd':'df';
+      const sym = d>0?'▲':d<0?'▼':'—';
+      deltaHtml = '<span class="' + cls + '">' + sym + Math.abs(d).toFixed(1) + (unit==='%'?'%':'') + '</span>';
+    }
+
+    // Bar for % metrics
+    let barHtml = '';
+    if (isPercent && cy != null) {
+      const barColor = p==='pip-g'?'#1a7a4a':p==='pip-r'?'#c0201c':p==='pip-y'?'#d4900a':'#8492B4';
+      barHtml = '<div class="bar-wrap"><div class="bar-fill" style="width:'+Math.min(100,Math.max(0,cy))+'%;background:'+barColor+'"></div></div>';
+    }
+
+    // Label: if this metric label appears more than once in group -> show city
+    const labelCount = metrics.filter(x => x.label === m.label).length;
+    const label = labelCount > 1
+      ? '<span class="sc-pip ' + p + '"></span>' + m.city
+      : m.label.replace(/^[%#]\s*/,'').replace(/ - Overall$/,'').replace(/ Overall$/,'').replace(/ \(cumulative\)/,'');
+
+    return '<tr>'
+      + '<td class="entity-name">' + label + '</td>'
+      + '<td class="cur-val ' + vc(m) + '">' + fmtVal(cy, unit) + '</td>'
+      + '<td class="ly-val">' + fmtVal(ly, unit) + '</td>'
+      + '<td class="ly2-val">' + fmtVal(ly2, unit) + '</td>'
+      + '<td class="delta-val">' + deltaHtml + '</td>'
+      + (isPercent ? '<td class="bar-cell"><div style="width:80px">' + barHtml + '</div></td>' : '')
+      + '</tr>';
+  }).join('');
+
+  const allSameLabel = new Set(metrics.map(m=>m.label)).size === 1;
+  const maxLabelCount = Math.max(...[...new Set(metrics.map(m=>m.label))].map(l=>metrics.filter(x=>x.label===l).length));
+  const colHeader = (allSameLabel || maxLabelCount > 1) ? 'Entity' : 'Metric';
+  const barCol = isPercent ? '<th class="bar-col"></th>' : '';
+
+  card.innerHTML = '<div class="sb-card-head"><div class="sb-title">'+g.group+'</div><div class="sb-owner">'+g.owner+'</div></div>'
+    + '<table class="sb-table"><thead><tr>'
+    + '<th class="entity-col">'+colHeader+'</th><th>26–27</th><th>25–26</th><th>24–25</th><th>vs LY</th>'+barCol
+    + '</tr></thead><tbody>'+rows+'</tbody></table>'
+    + '<div class="sb-year-legend">'
+    + '<div class="sb-leg-item"><div class="sb-leg-dot" style="background:#001E62"></div>26–27 this year</div>'
+    + '<div class="sb-leg-item"><div class="sb-leg-dot" style="background:#F9A21A"></div>25–26 last year</div>'
+    + '<div class="sb-leg-item"><div class="sb-leg-dot" style="background:#d0d4e0"></div>24–25 prior year</div>'
+    + '</div>';
+  el.appendChild(card);
+}
+
+function renderStatCard(el, g, metrics) {
+  const unit = metrics[0].unit;
+  const card = document.createElement('div');
+  card.className = 'sb-card';
+  const rows = metrics.map(m => {
+    const cy = lastVal(m.cy);
+    const ly = lastVal(m.ly);
+    const p = pip(m);
+    let deltaHtml = '';
+    if (cy != null && ly != null) {
+      const d = cy - ly; const f = m.low?-1:1;
+      const cls = f*d>0?'du':f*d<0?'dd':'df';
+      deltaHtml = ' <span class="'+cls+'">'+(d>0?'▲':d<0?'▼':'—')+Math.abs(d).toFixed(1)+(unit==='%'?'%':'')+' vs LY</span>';
+    }
+    const label = metrics.length > 1 ? (m.city !== 'Overall' ? m.city : m.label) : m.label;
+    return '<tr><td class="entity-name"><span class="sc-pip '+p+'"></span>'+label+'</td>'
+      +'<td class="cur-val '+vc(m)+'">'+fmtVal(cy,unit)+'</td>'
+      +'<td class="ly-val">'+fmtVal(ly,unit)+'</td>'
+      +'<td class="delta-val">'+deltaHtml+'</td></tr>';
+  }).join('');
+  card.innerHTML = '<div class="sb-card-head"><div class="sb-title">'+g.group+'</div><div class="sb-owner">'+g.owner+'</div></div>'
+    +'<table class="sb-table"><thead><tr><th class="entity-col">Metric</th><th>26–27</th><th>25–26</th><th>vs LY</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  el.appendChild(card);
+}
+
+function renderResignationTable(el) {
+  const reasons = [
+    {label:'Personal Reasons',     key:'Resignation Reason: % Personal|Overall'},
+    {label:'Career Change',        key:'Resignation Reason: % Career Change|Overall'},
+    {label:'Leave Non-Return',     key:'Resignation Reason: % Leave Non-Return|Overall'},
+    {label:'Compensation',         key:'Resignation Reason: % Compensation|Overall'},
+    {label:'Career Advancement',   key:'Resignation Reason: % Career Advancement|Overall'},
+    {label:'Other / Not Disclosed',key:'Resignation Reason: % Other / Not Disclosed|Overall'},
+  ];
+  const rows = reasons.map(r => {
+    const m = METRICS[r.key];
+    const cy = m ? lastVal(m.cy) : null;
+    const ly = m ? lastVal(m.ly) : null;
+    const ly2 = m ? lastVal(m.ly2) : null;
+    const barW = cy != null ? Math.min(100, cy).toFixed(1) : '0';
+    return '<tr><td class="entity-name">'+r.label+'</td>'
+      +'<td class="cur-val">'+fmtVal(cy,'%')+'</td>'
+      +'<td class="ly-val">'+fmtVal(ly,'%')+'</td>'
+      +'<td class="ly2-val">'+fmtVal(ly2,'%')+'</td>'
+      +'<td class="bar-cell"><div class="bar-wrap"><div class="bar-fill" style="width:'+barW+'%;background:#001E62;opacity:.5"></div></div></td>'
+      +'</tr>';
+  }).join('');
+  const card = document.createElement('div');
+  card.className = 'sb-card';
+  card.style.marginTop = '-8px';
+  card.innerHTML = '<div class="sb-card-head"><div class="sb-title">Resignation Reasons</div><div class="sb-owner">Jasmin</div></div>'
+    +'<table class="sb-table"><thead><tr><th class="entity-col">Reason</th><th>26–27</th><th>25–26</th><th>24–25</th><th class="bar-col"></th></tr></thead><tbody>'+rows+'</tbody></table>';
+  el.appendChild(card);
+}
+
+function redrawAll() {} // no-op, no canvas charts
+
 
 // ─── RENDER ALL ───────────────────────────────────────────────────────────────
 function renderAll() {
