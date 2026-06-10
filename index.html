@@ -268,8 +268,8 @@ hr.div{border:none;border-top:1px solid var(--border2);margin:22px 0}
 <div class="page active" id="page-summary">
 
   <div class="sync-status">
-    <div class="sync-dot" id="sync-dot"></div>
-    <div class="sync-msg" id="sync-msg">Not yet synced — click "Sync from Sheet" to load live data.</div>
+    <div class="sync-dot loading" id="sync-dot"></div>
+    <div class="sync-msg" id="sync-msg">Loading data from Sheet…</div>
     <a href="https://docs.google.com/spreadsheets/d/1pks8_nmt8jSutjt4_YM3yJPkruBLVbW_Kg8wyY5suJ4/edit" target="_blank" class="sync-sheet-link">Open Sheet ↗</a>
   </div>
 
@@ -1203,6 +1203,11 @@ buildHowTo();
 buildEntryOwners();
 renderAll();
 window.addEventListener('resize', redrawAll);
+// Auto-sync on load so historical data appears immediately
+window.addEventListener('load', () => {
+  setSyncStatus('loading', 'Loading data from Sheet…');
+  syncFromSheet();
+});
 </script>
 </body>
 </html>
