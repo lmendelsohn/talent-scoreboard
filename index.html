@@ -567,19 +567,26 @@ async function syncFromSheet() {
 
   try {
     // Fetch all data tabs in parallel
-    const [resp2627, resp2526, resp2425] = await Promise.all([
-      fetch(CSV_URLS.data2627),
-      fetch(CSV_URLS.data2526),
-      fetch(CSV_URLS.data2425),
-    ]);
-
-    if (!resp2627.ok) throw new Error(`HTTP ${resp2627.status} — make sure the Sheet is set to "Anyone with the link can view"`);
+    // Use CORS proxy to fetch Google Sheets CSV (direct fetch blocked by CORS)
+    async function fetchCSV(url) {
+      try {
+        const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+        const r = await fetch(proxy);
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const j = await r.json();
+        return j.contents || '';
+      } catch(e) {
+        return '';
+      }
+    }
 
     const [text2627, text2526, text2425] = await Promise.all([
-      resp2627.text(),
-      resp2526.ok ? resp2526.text() : '',
-      resp2425.ok ? resp2425.text() : '',
+      fetchCSV(CSV_URLS.data2627),
+      fetchCSV(CSV_URLS.data2526),
+      fetchCSV(CSV_URLS.data2425),
     ]);
+
+    if (!text2627 || text2627.length < 50) throw new Error('Sheet not accessible — make sure it is set to "Anyone with the link can view"');
 
     buildMetricsFromDefaults();
 
