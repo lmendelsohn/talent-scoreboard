@@ -533,6 +533,196 @@ function buildMetricsFromDefaults() {
   });
 }
 
+// ─── SEED HISTORICAL DATA (25-26 = ly, 24-25 = ly2) ─────────────────────────
+// Baked in so charts show historical lines without network requests
+function seedHistoricalData() {
+  function set(key, field, weekIdx, val) {
+    if (METRICS[key] && METRICS[key][field]) METRICS[key][field][weekIdx] = val;
+  }
+  // Week index maps to bi-weekly slots starting Sep 8 2025 (25-26) and Sep 9 2024 (24-25)
+  // 25-26: wk0=9/8/25, wk1=9/22/25, wk2=10/6/25, wk3=10/20/25, wk4=11/3/25, wk5=11/17/25
+  //        wk6=12/1/25, wk7=12/15/25, wk8=12/29/25, wk9=1/12/26, wk10=1/26/26, wk11=2/9/26, wk12=2/23/26
+  // 24-25: wk0=9/9/24, wk1=9/23/24, wk2=10/7/24, wk3=10/21/24, wk4=11/4/24, wk5=11/18/24
+  //        wk6=12/2/24, wk7=12/16/24, wk8=12/30/24, wk9=1/13/25, wk10=1/27/25, wk11=2/10/25, wk12=2/24/25
+
+  const ly='ly', ly2='ly2';
+
+  // Staff Retention Overall
+  [99.9,99.0,98.5,97.8,97.5,97.2,96.8,96.5,96.0,95.5,95.0,94.5,94.0].forEach((v,i)=>set('% Staff Retention|Overall',ly,i,v));
+  [99.8,99.2,99.0,98.4,98.2,98.0,97.7,97.7,97.2,96.6,95.2,95.0,94.5].forEach((v,i)=>set('% Staff Retention|Overall',ly2,i,v));
+
+  // Teacher Retention
+  [99.9,98.6,97.8,97.3,96.9,96.5,95.5,95.0,94.5,94.0,93.7,93.5,93.2].forEach((v,i)=>set('% Teacher Retention|Overall',ly,i,v));
+  [99.7,99.4,99.1,98.7,98.2,97.8,97.4,96.5,94.7,94.3,93.7,93.1,92.7].forEach((v,i)=>set('% Teacher Retention|Overall',ly2,i,v));
+  [99.8,98.5,97.8,97.4,97.3,96.8,95.6,94.9,94.5,93.9,94.5,93.4,93.3].forEach((v,i)=>set('% Teacher Retention|Newark',ly,i,v));
+  [99.5,99.3,99.1,98.6,97.9,97.7,97.5,97.1,95.6,94.9,94.5,93.9,93.4].forEach((v,i)=>set('% Teacher Retention|Newark',ly2,i,v));
+  [100,99.4,98.6,98.2,97.0,96.5,95.9,95.9,94.7,93.6,94.7,93.0,93.0].forEach((v,i)=>set('% Teacher Retention|Camden',ly,i,v));
+  [100,100,99.4,98.8,98.8,98.8,98.8,97.0,95.9,95.9,94.7,93.6,93.0].forEach((v,i)=>set('% Teacher Retention|Camden',ly2,i,v));
+  [100,97.3,95.8,94.7,94.7,93.5,88.0,88.0,86.9,88.1,86.9,88.1,88.1].forEach((v,i)=>set('% Teacher Retention|Miami',ly,i,v));
+  [100,98.7,98.7,98.7,97.4,96.2,93.8,92.6,88.0,88.0,86.9,88.1,88.1].forEach((v,i)=>set('% Teacher Retention|Miami',ly2,i,v));
+
+  // 1st/2nd year retention
+  [100,94.7,90.5,89.4,88.6,87.8,85.6,85.0,84.5,84.0,83.7,83.2,82.7].forEach((v,i)=>set('% Teacher Retention 1st Year|Overall',ly,i,v));
+  [98.4,97.6,96.9,95.5,94.0,93.5,93.5,92.6,90.4,88.6,87.7,87.2,86.7].forEach((v,i)=>set('% Teacher Retention 1st Year|Overall',ly2,i,v));
+  [100,99.2,99.0,99.2,98.5,97.8,93.0,93.0,91.7,89.6,91.7,88.9,88.9].forEach((v,i)=>set('% Teacher Retention 2nd Year|Overall',ly,i,v));
+  [100,100,100,99.3,98.6,97.9,97.2,96.5,93.0,93.0,91.7,89.6,88.9].forEach((v,i)=>set('% Teacher Retention 2nd Year|Overall',ly2,i,v));
+
+  // High performer retention
+  [null,null,null,null,99.0,null,null,null,null,99.0,null,null,99.0].forEach((v,i)=>set('% High Performer Teacher Retention|Overall',ly,i,v));
+  [99.7,null,null,null,null,null,null,98.0,null,94.3,null,93.7,null].forEach((v,i)=>set('% High Performer Teacher Retention|Overall',ly2,i,v));
+
+  // TiR Retention
+  [100,100,100,100,98.4,97.0,90.5,90.5,90.3,88.7,90.3,88.5,86.9].forEach((v,i)=>set('% TiR Retention|Overall',ly,i,v));
+  [100,100,100,100,100,98.4,96.8,96.8,96.7,93.7,90.5,90.5,90.3].forEach((v,i)=>set('% TiR Retention|Overall',ly2,i,v));
+  [100,100,100,100,98,97.7,95.5,95.5,95.5,95.5,95.5,95.3,93.0].forEach((v,i)=>set('% TiR Retention|Newark',ly,i,v));
+  [100,100,100,100,100,97.7,97.7,97.7,97.7,97.7,95.5,95.5,95.5].forEach((v,i)=>set('% TiR Retention|Newark',ly2,i,v));
+  [100,100,100,100,100,100,85.7,85.7,85.7,85.7,85.7,85.7,85.7].forEach((v,i)=>set('% TiR Retention|Camden',ly,i,v));
+  [100,100,100,100,100,100,100,100,100,100,85.7,85.7,85.7].forEach((v,i)=>set('% TiR Retention|Camden',ly2,i,v));
+  [100,100,100,100,100,96.2,75.0,75.0,72.7,63.6,72.7,63.6,63.6].forEach((v,i)=>set('% TiR Retention|Miami',ly,i,v));
+  [100,100,100,100,100,100,92.3,92.3,90.9,76.9,75.0,75.0,72.7].forEach((v,i)=>set('% TiR Retention|Miami',ly2,i,v));
+
+  // TiR-1/2 Retention Newark
+  [null,null,null,null,null,null,null,null,null,91.0,91.0,91.0,85.0].forEach((v,i)=>set('% TiR-1 Retention|Newark',ly,i,v));
+  [null,null,null,null,null,null,null,null,null,100,100,96.0,94.0].forEach((v,i)=>set('% TiR-2 Retention|Newark',ly,i,v));
+
+  // Departures
+  [null,null,null,null,null,null,null,null,null,43,46,51,58].forEach((v,i)=>set('Departures since 9/1|Newark',ly,i,v));
+  [2,4,5,10,17,17,17,19,null,25,32,35,41].forEach((v,i)=>set('Departures since 9/1|Newark',ly2,i,v));
+  [null,null,null,null,null,null,null,null,null,19,20,22,24].forEach((v,i)=>set('Departures since 9/1|Camden',ly,i,v));
+  [1,1,2,3,6,6,7,9,null,13,15,15,19].forEach((v,i)=>set('Departures since 9/1|Camden',ly2,i,v));
+  [null,null,null,null,null,null,null,null,null,9,10,11,12].forEach((v,i)=>set('Departures since 9/1|Miami',ly,i,v));
+  [1,1,1,1,2,5,6,6,null,7,11,11,13].forEach((v,i)=>set('Departures since 9/1|Miami',ly2,i,v));
+  [null,null,null,null,null,null,null,null,null,71,73,76,79].forEach((v,i)=>set('Departures since 9/1|Overall',ly,i,v));
+  [5,7,11,16,28,31,33,37,null,48,62,66,79].forEach((v,i)=>set('Departures since 9/1|Overall',ly2,i,v));
+  [null,null,null,null,null,null,null,null,null,63,63,63,65].forEach((v,i)=>set('% Resignations Regrettable|Overall',ly,i,v));
+  [0,25,33,18,36,42,46,47,null,18,23,23,49].forEach((v,i)=>set('% Resignations Regrettable|Overall',ly2,i,v));
+
+  // Certification
+  [104,103,98,94,84,80,77,72,69,66,62,58,46].forEach((v,i)=>set('This Year Cohort Uncertified|Overall',ly,i,v));
+  [null,null,null,null,123,122,121,120,118,115,112,109,100].forEach((v,i)=>set('This Year Cohort Uncertified|Overall',ly2,i,v));
+  [77,78,74,72,65,60,58,55,54,50,47,44,35].forEach((v,i)=>set('This Year Cohort Uncertified|Newark',ly,i,v));
+  [null,null,null,null,98,98,97,96,95,94,92,90,81].forEach((v,i)=>set('This Year Cohort Uncertified|Newark',ly2,i,v));
+  [27,25,22,19,19,17,19,16,15,14,14,12,11].forEach((v,i)=>set('This Year Cohort Uncertified|Camden',ly,i,v));
+  [null,null,null,null,25,24,24,24,23,21,20,22,19].forEach((v,i)=>set('This Year Cohort Uncertified|Camden',ly2,i,v));
+  [119,119,119,118,120,118,105,100,98,94,92,88,85].forEach((v,i)=>set('Next Year Cohort Uncertified|Overall',ly,i,v));
+  [null,null,null,null,145,143,136,133,132,131,139,147,171].forEach((v,i)=>set('Next Year Cohort Uncertified|Overall',ly2,i,v));
+  [15,14,13,13,12,11,11,10,10,9,9,8,7].forEach((v,i)=>set('% At Risk Non-Renewal (Cert)|Overall',ly,i,v));
+  [null,null,null,null,17,17,17,15,17,16,16,16,15].forEach((v,i)=>set('% At Risk Non-Renewal (Cert)|Overall',ly2,i,v));
+  [16,16,15,15,13,12,12,11,11,10,10,9,7].forEach((v,i)=>set('% At Risk Non-Renewal (Cert)|Newark',ly,i,v));
+  [null,null,null,null,21,21,21,20,20,20,20,19,16].forEach((v,i)=>set('% At Risk Non-Renewal (Cert)|Newark',ly2,i,v));
+  [16,15,13,12,11,10,12,10,9,9,9,8,6].forEach((v,i)=>set('% At Risk Non-Renewal (Cert)|Camden',ly,i,v));
+  [null,null,null,null,15,14,14,14,14,13,12,13,11].forEach((v,i)=>set('% At Risk Non-Renewal (Cert)|Camden',ly2,i,v));
+
+  // Staffing
+  [98,98,97,97,null,null,98,98,98,98,98,98,85].forEach((v,i)=>set('% Staffed|Overall',ly,i,v));
+  [97,97,97,97,96,97,97,97,97,97,97,96,96].forEach((v,i)=>set('% Staffed|Overall',ly2,i,v));
+  [98,98,99,99,null,null,99,99,99,99,99,99,86].forEach((v,i)=>set('% Staffed|Newark',ly,i,v));
+  [96,96,96,96,96,96,96,96,96,96,96,96,97].forEach((v,i)=>set('% Staffed|Newark',ly2,i,v));
+  [98,98,96,96,null,null,96,95,95,95,95,95,84].forEach((v,i)=>set('% Staffed|Camden',ly,i,v));
+  [98,98,98,98,98,98,97,98,97,97,96,95,94].forEach((v,i)=>set('% Staffed|Camden',ly2,i,v));
+  [98,98,97,97,null,null,98,98,98,98,98,98,null].forEach((v,i)=>set('% Staffed|Miami',ly,i,v));
+  [97,98,98,98,97,98,97,98,98,98,98,96,96].forEach((v,i)=>set('% Staffed|Miami',ly2,i,v));
+  [98,98,82,95,null,null,92,95,95,95,95,95,null].forEach((v,i)=>set('% Staffed|Paterson',ly,i,v));
+
+  // Mid-year hires
+  [38,46,55,65,null,null,84,null,92,null,100,null,null].forEach((v,i)=>set('Mid-Year Hires (cumulative)|Overall',ly,i,v));
+  [30,44,45,52,54,58,61,70,70,74,85,86,89].forEach((v,i)=>set('Mid-Year Hires (cumulative)|Overall',ly2,i,v));
+  [27,32,36,40,null,null,56,null,61,null,68,null,null].forEach((v,i)=>set('Mid-Year Hires (cumulative)|Newark',ly,i,v));
+  [27,29,30,34,35,39,41,46,46,49,56,56,59].forEach((v,i)=>set('Mid-Year Hires (cumulative)|Newark',ly2,i,v));
+  [5,6,7,9,null,null,9,null,9,null,20,null,null].forEach((v,i)=>set('Mid-Year Hires (cumulative)|Camden',ly,i,v));
+  [10,10,10,12,13,13,14,17,17,18,19,20,20].forEach((v,i)=>set('Mid-Year Hires (cumulative)|Camden',ly2,i,v));
+  [6,8,9,10,null,null,11,null,11,null,12,null,null].forEach((v,i)=>set('Mid-Year Hires (cumulative)|Miami',ly,i,v));
+  [2,5,5,6,6,6,6,7,7,7,10,10,10].forEach((v,i)=>set('Mid-Year Hires (cumulative)|Miami',ly2,i,v));
+  [9,10,8,7,null,null,7,9,11,null,null,null,null].forEach((v,i)=>set('Open Teacher/LS Seats|Overall',ly,i,v));
+  [9,10,null,null,null,null,null,null,7,9,11,null,null].forEach((v,i)=>set('Open Teacher/LS Seats|Overall',ly2,i,v));
+
+  // On-time clearance
+  [87,87,89,91,null,null,90,90,89,89,89,90,91].forEach((v,i)=>set('Mid-Year On-Time Clearance Rate|Overall',ly,i,v));
+  [100,100,81,null,50,48,54,59,61,57,65,61,61].forEach((v,i)=>set('Mid-Year On-Time Clearance Rate|Overall',ly2,i,v));
+  [86,86,89,91,null,null,91,91,91,91,90,91,90].forEach((v,i)=>set('Mid-Year On-Time Clearance Rate|Newark',ly,i,v));
+  [100,100,78,null,41,47,54,57,64,60,64,60,60].forEach((v,i)=>set('Mid-Year On-Time Clearance Rate|Newark',ly2,i,v));
+  [91,89,89,89,null,null,90,90,90,90,91,91,91].forEach((v,i)=>set('Mid-Year On-Time Clearance Rate|Camden',ly,i,v));
+  [null,null,null,null,50,60,50,50,58,62,62,54,57].forEach((v,i)=>set('Mid-Year On-Time Clearance Rate|Camden',ly2,i,v));
+  [88,83,88,90,null,null,83,84,84,84,85,85,85].forEach((v,i)=>set('Mid-Year On-Time Clearance Rate|Miami',ly,i,v));
+  [null,null,null,null,null,null,50,25,71,43,63,57,43].forEach((v,i)=>set('Mid-Year On-Time Clearance Rate|Miami',ly2,i,v));
+  [78,100,100,100,null,null,85,87,82,82,82,82,82].forEach((v,i)=>set('Mid-Year On-Time Clearance Rate|KTAF',ly,i,v));
+  [null,null,null,null,null,null,null,null,75,75,80,80,80].forEach((v,i)=>set('Mid-Year On-Time Clearance Rate|KTAF',ly2,i,v));
+
+  // Teacher ETR / Values
+  [null,2.15,null,null,null,null,null,null,null,2.78,null,null,2.77].forEach((v,i)=>set('Avg. Teacher ETR|Overall',ly,i,v));
+  [null,2.15,null,null,null,null,null,null,null,2.72,null,null,2.77].forEach((v,i)=>set('Avg. Teacher ETR|Overall',ly2,i,v));
+  [null,2.12,null,null,null,null,null,null,null,2.80,null,null,2.80].forEach((v,i)=>set('Avg. Teacher ETR|Newark',ly,i,v));
+  [null,2.17,null,null,null,null,null,null,null,2.74,null,null,2.80].forEach((v,i)=>set('Avg. Teacher ETR|Newark',ly2,i,v));
+  [null,1.78,null,null,null,null,null,null,null,2.72,null,null,2.72].forEach((v,i)=>set('Avg. Teacher ETR|Camden',ly,i,v));
+  [null,1.81,null,null,null,null,null,null,null,2.70,null,null,2.72].forEach((v,i)=>set('Avg. Teacher ETR|Camden',ly2,i,v));
+  [null,2.36,null,null,null,null,null,null,null,2.66,null,null,2.65].forEach((v,i)=>set('Avg. Teacher ETR|Miami',ly,i,v));
+  [null,2.22,null,null,null,null,null,null,null,2.67,null,null,2.65].forEach((v,i)=>set('Avg. Teacher ETR|Miami',ly2,i,v));
+  [null,3.45,null,null,null,null,null,null,null,3.55,null,null,3.55].forEach((v,i)=>set('Avg. Teacher Values|Overall',ly,i,v));
+  [null,3.48,null,null,null,null,null,null,null,3.54,null,null,3.55].forEach((v,i)=>set('Avg. Teacher Values|Overall',ly2,i,v));
+  [null,3.45,null,null,null,null,null,null,null,3.52,null,null,3.52].forEach((v,i)=>set('Avg. Teacher Values|Newark',ly,i,v));
+  [null,3.49,null,null,null,null,null,null,null,3.52,null,null,3.52].forEach((v,i)=>set('Avg. Teacher Values|Newark',ly2,i,v));
+  [null,3.51,null,null,null,null,null,null,null,3.62,null,null,3.62].forEach((v,i)=>set('Avg. Teacher Values|Camden',ly,i,v));
+  [null,3.36,null,null,null,null,null,null,null,3.54,null,null,3.62].forEach((v,i)=>set('Avg. Teacher Values|Camden',ly2,i,v));
+  [null,3.44,null,null,null,null,null,null,null,3.70,null,null,3.55].forEach((v,i)=>set('Avg. Teacher Values|Miami',ly,i,v));
+  [null,3.49,null,null,null,null,null,null,null,3.67,null,null,3.55].forEach((v,i)=>set('Avg. Teacher Values|Miami',ly2,i,v));
+
+  // TiR ETR / Values
+  [null,1.62,null,null,null,null,null,null,null,1.99,null,null,1.96].forEach((v,i)=>set('Avg. TiR-1 ETR|Overall',ly,i,v));
+  [null,3.20,null,null,null,null,null,null,null,3.46,null,null,3.41].forEach((v,i)=>set('Avg. TiR-1 Values|Overall',ly,i,v));
+  [null,1.95,null,null,null,null,null,null,null,2.40,null,null,2.34].forEach((v,i)=>set('Avg. TiR-2 ETR|Overall',ly,i,v));
+  [null,3.45,null,null,null,null,null,null,null,3.58,null,null,3.55].forEach((v,i)=>set('Avg. TiR-2 Values|Overall',ly,i,v));
+  [null,8,null,null,null,null,null,null,null,83,null,null,47].forEach((v,i)=>set('% TiR-1s Scoring 2+|Overall',ly,i,v));
+  [null,26,null,null,null,null,null,null,null,90,null,null,54].forEach((v,i)=>set('% TiR-2s Scoring 2.25+|Overall',ly,i,v));
+  [null,null,null,null,13,null,null,null,null,null,null,null,44].forEach((v,i)=>set('% TiR-2s Scoring 2.25+|Overall',ly2,i,v));
+
+  // PM Completion
+  [0,72,96,null,null,null,null,null,null,1,null,null,95].forEach((v,i)=>set('% Teacher PM Completion|Overall',ly,i,v));
+  [19,72,96,null,0,null,null,null,null,1,null,null,95].forEach((v,i)=>set('% Teacher PM Completion|Overall',ly2,i,v));
+  [0,59,96,null,null,null,null,null,null,1,null,null,97].forEach((v,i)=>set('% Teacher PM Completion|Newark',ly,i,v));
+  [0,59,96,null,0,null,null,null,null,1,null,null,97].forEach((v,i)=>set('% Teacher PM Completion|Newark',ly2,i,v));
+  [0,59,85,null,null,null,null,null,null,0,null,null,98].forEach((v,i)=>set('% Teacher PM Completion|Camden',ly,i,v));
+  [0,59,85,null,0,null,null,null,null,0,null,null,98].forEach((v,i)=>set('% Teacher PM Completion|Camden',ly2,i,v));
+  [0,100,99,null,null,null,null,null,null,6,null,null,91].forEach((v,i)=>set('% Teacher PM Completion|Miami',ly,i,v));
+  [41,100,99,null,0,null,null,null,null,6,null,null,91].forEach((v,i)=>set('% Teacher PM Completion|Miami',ly2,i,v));
+
+  // Teacher ITR
+  [null,null,null,null,null,null,null,null,null,59,null,92,null].forEach((v,i)=>set('% Teacher ITR Completion|Overall',ly,i,v));
+  [null,null,null,null,null,null,null,null,null,null,66,null,82].forEach((v,i)=>set('% Teacher ITR Completion|Overall',ly2,i,v));
+
+  // Leader PM
+  [73,85,null,null,null,null,null,null,null,null,null,null,null].forEach((v,i)=>set('% Leader PM Completion|Overall',ly,i,v));
+  [73,85,null,null,null,null,null,null,null,null,20,null,70].forEach((v,i)=>set('% Leader PM Completion|Overall',ly2,i,v));
+  [43,86,null,null,null,null,null,null,null,null,27,null,84].forEach((v,i)=>set('% Leader PM Completion|Newark',ly2,i,v));
+  [79,92,null,null,null,null,null,null,null,null,12,null,80].forEach((v,i)=>set('% Leader PM Completion|Camden',ly2,i,v));
+  [100,100,null,null,null,null,null,null,null,null,30,null,79].forEach((v,i)=>set('% Leader PM Completion|Miami',ly2,i,v));
+  [67,86,null,null,null,null,null,null,null,null,9,null,39].forEach((v,i)=>set('% Leader PM Completion|KTAF',ly2,i,v));
+
+  // KB4
+  [79,97,99,null,null,null,null,null,null,null,null,null,null].forEach((v,i)=>set('KB4 Completion|Overall',ly2,i,v));
+  [77,98,99,null,null,null,null,null,null,null,null,null,null].forEach((v,i)=>set('KB4 Completion|Newark',ly2,i,v));
+  [85,100,100,null,null,null,null,null,null,null,null,null,null].forEach((v,i)=>set('KB4 Completion|Camden',ly2,i,v));
+  [96,98,99,null,null,null,null,null,null,null,null,null,null].forEach((v,i)=>set('KB4 Completion|Miami',ly2,i,v));
+  [56,90,95,null,null,null,null,null,null,null,null,null,null].forEach((v,i)=>set('KB4 Completion|KTAF',ly2,i,v));
+
+  // Support Surveys
+  [null,null,null,null,null,null,null,null,null,null,null,null,84.8].forEach((v,i)=>set('HR Support Survey|Overall',ly,i,v));
+  [82,null,null,null,null,null,null,null,null,null,null,null,84.8].forEach((v,i)=>set('HR Support Survey|Overall',ly2,i,v));
+  [null,null,null,null,null,null,null,null,null,null,null,null,66.8].forEach((v,i)=>set('LD Support Survey|Overall',ly2,i,v));
+
+  // Demographics
+  [13,13,13,13,13,13,13,13,13,13,13,13,13].forEach((v,i)=>set('% White Staff|KIPP NJ-MIA',ly,i,v));
+  [13,13,13,13,13,13,13,13,13,13,13,13,13].forEach((v,i)=>set('% White Staff|KIPP NJ-MIA',ly2,i,v));
+  [32,32,32,32,32,32,32,32,32,32,32,32,32].forEach((v,i)=>set('% White Staff|KTAF',ly,i,v));
+  [41,41,41,41,40,40,40,40,40,40,41,41,36].forEach((v,i)=>set('% White Staff|KTAF',ly2,i,v));
+  [40,40,40,40,38,38,38,38,38,38,38,38,38].forEach((v,i)=>set('% White Leaders|KTAF',ly,i,v));
+  [51,51,51,51,51,51,51,51,51,51,51,51,43].forEach((v,i)=>set('% White Leaders|KTAF',ly2,i,v));
+
+  // NSO Clearance
+  [null,null,null,null,null,null,null,null,null,null,null,null,93].forEach((v,i)=>set('% New Staff Cleared for NSO|Newark',ly2,i,v));
+  [null,null,null,null,null,null,null,null,null,null,null,null,87].forEach((v,i)=>set('% New Staff Cleared for NSO|Camden',ly2,i,v));
+  [null,null,null,null,null,null,null,null,null,null,null,null,85].forEach((v,i)=>set('% New Staff Cleared for NSO|Miami',ly2,i,v));
+}
+
 // ─── CSV PARSING ─────────────────────────────────────────────────────────────
 function parseCSV(text) {
   const rows = [];
@@ -567,28 +757,36 @@ async function syncFromSheet() {
 
   try {
     // Fetch all data tabs in parallel
-    // Use CORS proxy to fetch Google Sheets CSV (direct fetch blocked by CORS)
+    // Fetch 26-27 live data via CORS proxy — historical data is seeded below
     async function fetchCSV(url) {
-      try {
-        const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
-        const r = await fetch(proxy);
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const j = await r.json();
-        return j.contents || '';
-      } catch(e) {
-        return '';
+      const proxies = [
+        u => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u),
+        u => 'https://corsproxy.io/?' + encodeURIComponent(u),
+      ];
+      for (const makeProxy of proxies) {
+        try {
+          const r = await fetch(makeProxy(url), {signal: AbortSignal.timeout(8000)});
+          if (!r.ok) continue;
+          const ct = r.headers.get('content-type') || '';
+          if (ct.includes('json')) {
+            const j = await r.json();
+            const text = j.contents || j.data || '';
+            if (text.length > 50) return text;
+          } else {
+            const text = await r.text();
+            if (text.length > 50) return text;
+          }
+        } catch(e) { continue; }
       }
+      return '';
     }
 
-    const [text2627, text2526, text2425] = await Promise.all([
-      fetchCSV(CSV_URLS.data2627),
-      fetchCSV(CSV_URLS.data2526),
-      fetchCSV(CSV_URLS.data2425),
-    ]);
-
-    if (!text2627 || text2627.length < 50) throw new Error('Sheet not accessible — make sure it is set to "Anyone with the link can view"');
+    const text2627 = await fetchCSV(CSV_URLS.data2627);
+    const text2526 = ''; // historical seeded below
+    const text2425 = ''; // historical seeded below
 
     buildMetricsFromDefaults();
+    seedHistoricalData();
 
     // 26-27 = current year (cy), 25-26 = last year (ly), 24-25 = prior year (ly2)
     parseDataTab(text2627, 'cy');
@@ -605,6 +803,7 @@ async function syncFromSheet() {
 
   } catch(e) {
     buildMetricsFromDefaults();
+    seedHistoricalData();
     setSyncStatus('err', `Could not reach Sheet — using seeded data. Make sure the Sheet is set to "Anyone with the link can view". (${e.message})`);
     renderAll();
   }
@@ -1206,6 +1405,7 @@ function renderAll() {
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 buildMetricsFromDefaults();
+seedHistoricalData();
 buildHowTo();
 buildEntryOwners();
 renderAll();
